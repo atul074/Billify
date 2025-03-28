@@ -32,7 +32,7 @@ public class UserService {
     public Users addUser(Users user) {
         System.out.println(user);
         String email=user.getEmail();
-        String username=email.substring(0,email.indexOf('@'));
+        String username=user.getUsername();
         user.setUsername(username);
         user.setPassword(encoder.encode(user.getPassword()));
         Users savedUser=repo.save(user);
@@ -50,9 +50,12 @@ public class UserService {
             String token=jwtService.generateToken(user.getEmail());
             Users authenticatedUser=repo.findByEmail(user.getEmail());
             System.out.println(token+"token");
+            System.out.println(authenticatedUser);
             UserDTO userDTO=new UserDTO();
             userDTO.setUsername(authenticatedUser.getUsername());
             userDTO.setEmail(authenticatedUser.getEmail());
+            userDTO.setPhoneNo(authenticatedUser.getPhoneNo());
+            userDTO.setAddress(authenticatedUser.getAddress());
             userDTO.setUser_id(authenticatedUser.getUser_id());
 
             Map<String, Object> res=new HashMap<>();
@@ -73,6 +76,8 @@ public class UserService {
             userDTO.setUsername(allUsers.get(i).getUsername());
             userDTO.setEmail(allUsers.get(i).getEmail());
             userDTO.setUser_id(allUsers.get(i).getUser_id());
+            userDTO.setPhoneNo(allUsers.get(i).getPhoneNo());
+            userDTO.setAddress(allUsers.get(i).getAddress());
             allUsersDTO.add(userDTO);
         }
         return allUsersDTO;
