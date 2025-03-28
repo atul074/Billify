@@ -48,7 +48,15 @@ function Mystate({children}) {
         throw error;
         }
       };
-      
+
+
+    const logoutUser=async()=>{
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userDTO');
+        setisAuthenticated(false);
+        settoken();
+        setuserdetail({});
+    }
 
   return (
     <Mycontext.Provider value={
@@ -60,6 +68,7 @@ function Mystate({children}) {
             setLoading,
             registerUser,
            loginUser,
+           logoutUser,
             
         }}>
        {children}
