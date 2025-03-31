@@ -3,9 +3,19 @@ package com.example.server.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+import java.util.List;
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "users")
+@Data
+@Builder
 public class Users {
 
     @Id
@@ -27,6 +37,10 @@ public class Users {
 
     @Pattern(regexp = "\\+?[0-9. ()-]{7,15}", message = "Invalid phone number")
     private String phoneNo;
+
+    @OneToMany(mappedBy = "user")
+    private List<Transaction> transactions;
+
     private LocalDateTime created_at;
 
     @PrePersist
