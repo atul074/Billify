@@ -1,11 +1,24 @@
 package com.example.server.dto;
+import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import java.util.List;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserDTO {
 
     private String username;
     private String email;
     private String address;
     private String phoneNo;
+    private List<TransactionDTO> transactions;
     private int user_id;
 
     public String getEmail() {

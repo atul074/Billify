@@ -20,9 +20,7 @@ const Sidebar = () => {
       <ul className="space-y-3">
         { <li><Link to="/dashboard" className="block p-3 rounded-md hover:text-teal-500 text-amber-600">Dashboard</Link></li>}
         {isAuthenticated && <li><Link to="/transaction" className="block p-3 rounded-md hover:text-teal-500">Transactions</Link></li>}
-        {isAuthenticated && <li><Link to="/category" className="block p-3 rounded-md hover:text-teal-500 bg-teal-600">Category</Link></li>}
         {isAuthenticated && <li><Link to="/product" className="block p-3 rounded-md hover:text-teal-500">Product</Link></li>}
-        {isAuthenticated && <li><Link to="/supplier" className="block p-3 rounded-md hover:text-teal-500">Supplier</Link></li>}
         {isAuthenticated && <li><Link to="/purchase" className="block p-3 rounded-md hover:text-teal-500">Purchase</Link></li>}
         {isAuthenticated && <li><Link to="/sell" className="block p-3 rounded-md hover:text-teal-500">Sell</Link></li>}
         {isAuthenticated && <li><Link to="/profile" className="block p-3 rounded-md hover:text-teal-500">Profile</Link></li>}
