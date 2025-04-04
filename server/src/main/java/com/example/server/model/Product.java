@@ -27,32 +27,27 @@ public class Product {
     @NotBlank(message = "Name is required")
     private String name;
 
-
-    @Positive(message = "product price must be a positive value")
+    @Positive(message = "Product price must be a positive value")
     private BigDecimal price;
 
-    @Min(value = 0, message = "stock quantity cannot be negative")
+    @Min(value = 0, message = "Stock quantity cannot be negative")
     private Integer stockQuantity;
 
     private String location;
 
     private final LocalDateTime createdAt = LocalDateTime.now();
 
-
-
-
     @Override
     public String toString() {
         return "Product{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-
                 ", price=" + price +
                 ", stockQuantity=" + stockQuantity +
                 ", location='" + location + '\'' +
-
-
                 ", createdAt=" + createdAt +
                 '}';
     }
+
+
 }
