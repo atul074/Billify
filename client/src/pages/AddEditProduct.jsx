@@ -5,7 +5,7 @@ import Mycontext from "../context/Mycontext";
 
 const AddEditProduct = () => {
     const context=useContext(Mycontext);
-    const{addProduct}=context;
+    const{addProduct,updateProduct}=context;
   const { productId } = useParams();
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
@@ -52,19 +52,19 @@ const AddEditProduct = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const product = {
-      name,
-      price,
-      stockQuantity,
-      location,
-    };
-
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("price", price);
+    formData.append("stockQuantity", stockQuantity);
+    formData.append("location", location);
+    console.log(formData);
+    
     try {
       if (isEditing) {
-       // await ApiService.updateProduct({ ...product, productId });
+        await updateProduct(formData);
         showMessage("Product successfully updated");
       } else {
-        await addProduct(product);
+        await addProduct(formData);
         showMessage("Product successfully added 🤩");
       }
       navigate("/product");

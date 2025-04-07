@@ -28,7 +28,7 @@ function App() {
           <Route path="/transaction" element={<CheckAuth><Transaction/></CheckAuth>}/>
           <Route path="/product" element={<CheckAuth><Product/></CheckAuth>}/>
           <Route path="/add-product" element={<CheckAuth><AddEditProduct/></CheckAuth>}/>
-
+          <Route path="/edit-product/:productId" element={<CheckAuth><AddEditProduct/></CheckAuth>}/>
           <Route path="*" element={<Login/>}/>
         </Routes>
       </Router>

@@ -68,9 +68,28 @@ function Mystate({children}) {
 
     const addProduct=async(formData)=>{
         try {
-            console.log("formdata:" ,formData);
+            // for (let [key, value] of formData.entries()) {
+            //     console.log(key, value);
+            //   }
             
             const response = await axios.post(`http://localhost:8087/api/products/add`, formData, {
+                headers: {
+                    ...getHeader(),
+                    "Content-Type": "multipart/form-data"
+                }
+            });
+            return response.data;
+            
+        } catch (error) {
+            alert(error);
+        }
+    }
+
+    const updateProduct=async(formData)=>{
+        try {
+            //console.log("formdata:" ,formData);
+            
+            const response = await axios.post(`http://localhost:8087/api/products/update`, formData, {
                 headers: {
                     ...getHeader(),
                     "Content-Type": "multipart/form-data"
@@ -100,6 +119,7 @@ function Mystate({children}) {
            loginUser,
            logoutUser,
            addProduct,
+           updateProduct,
             
         }}>
        {children}
