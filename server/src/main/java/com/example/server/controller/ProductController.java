@@ -33,7 +33,7 @@ public class ProductController {
         productDTO.setPrice(price);
         productDTO.setStockQuantity(stockQuantity);
         productDTO.setLocation(location);
-
+        System.out.println(productDTO);
         return ResponseEntity.ok(productService.saveProduct(productDTO));
     }
 

@@ -8,6 +8,14 @@ function Mystate({children}) {
     const [isAuthenticated, setisAuthenticated] = useState(false);
     const [userdetail, setuserdetail] = useState({});
     const [token, settoken] = useState();
+
+    const getHeader=()=> {
+        return {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+        }
+    };
+
     const registerUser = async (credentials) =>  {
         //console.log("aa raha");
         try {
@@ -56,7 +64,26 @@ function Mystate({children}) {
         setisAuthenticated(false);
         settoken();
         setuserdetail({});
+    };
+
+    const addProduct=async(formData)=>{
+        try {
+            console.log("formdata:" ,formData);
+            
+            const response = await axios.post(`http://localhost:8087/api/products/add`, formData, {
+                headers: {
+                    ...getHeader(),
+                    "Content-Type": "multipart/form-data"
+                }
+            });
+            return response.data;
+            
+        } catch (error) {
+            alert(error);
+        }
     }
+
+
 
   return (
     <Mycontext.Provider value={
@@ -65,10 +92,14 @@ function Mystate({children}) {
             isAuthenticated,
             userdetail,
             token,
+            setuserdetail,
+            settoken,
+            setisAuthenticated,
             setLoading,
             registerUser,
            loginUser,
            logoutUser,
+           addProduct,
             
         }}>
        {children}
