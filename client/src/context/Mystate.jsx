@@ -8,6 +8,7 @@ function Mystate({children}) {
     const [isAuthenticated, setisAuthenticated] = useState(false);
     const [userdetail, setuserdetail] = useState({});
     const [token, settoken] = useState();
+    const [allProducts, setAllProducts] = useState(null); // cached data
 
     const getHeader=()=> {
         return {
@@ -78,6 +79,8 @@ function Mystate({children}) {
                     "Content-Type": "multipart/form-data"
                 }
             });
+            setAllProducts(null);
+            getAllProducts();
             return response.data;
             
         } catch (error) {
@@ -95,6 +98,8 @@ function Mystate({children}) {
                     "Content-Type": "multipart/form-data"
                 }
             });
+            setAllProducts(null);
+            getAllProducts();
             return response.data;
             
         } catch (error) {
@@ -103,6 +108,39 @@ function Mystate({children}) {
     }
 
 
+    const getAllProducts = async () => {
+        console.log(allProducts);
+        
+        try {
+          if (allProducts) return allProducts; // ✅ return cached if already fetched
+      
+          const response = await axios.get(`http://localhost:8087/api/products/all`);
+      
+          setAllProducts(response.data); // cache it
+          return response.data;
+        } catch (error) {
+          alert("Failed to fetch products");
+          throw error;
+        }
+      };
+
+
+    const getProductById=async (productId) => {
+        const response = await axios.get(`http://localhost:8087/api/products/${productId}`, {
+            headers: this.getHeader()
+        });
+        return response.data;
+    }
+
+    const deleteProduct=async (productId) => {
+        const response = await axios.get(`http://localhost:8087/api/products/delete/${productId}`, {
+            headers: this.getHeader()
+        });
+
+        setAllProducts(null);
+        getAllProducts();
+        return response.data;
+    }
 
   return (
     <Mycontext.Provider value={
@@ -120,7 +158,10 @@ function Mystate({children}) {
            logoutUser,
            addProduct,
            updateProduct,
-            
+           getAllProducts,
+           getProductById,
+           deleteProduct,
+           
         }}>
        {children}
     </Mycontext.Provider>

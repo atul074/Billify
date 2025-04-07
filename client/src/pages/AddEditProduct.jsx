@@ -21,7 +21,7 @@ const AddEditProduct = () => {
       if (productId) {
         setIsEditing(true);
         try {
-          const productData ={}; //await ApiService.getProductById(productId);
+          const productData ={}; //await getProductById(productId);
           if (productData?.status === 200) {
             setName(productData.product.name);
             setPrice(productData.product.price);

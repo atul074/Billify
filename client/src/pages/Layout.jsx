@@ -32,10 +32,17 @@ const Sidebar = () => {
 
 const Layout = ({ children }) => {
   return (
-    <div className="flex">
+    <div className="flex min-h-screen">
+    {/* Sidebar with fixed width */}
+    <div className="w-1/5 bg-gray-100 p-">
       <Sidebar />
-      <div className="ml-1/5 flex-grow p-6 transition-all">{children}</div>
     </div>
+  
+    {/* Main content takes remaining space */}
+    <div className="flex-grow p-6 transition-all">
+      {children}
+    </div>
+  </div>
   );
 };
 

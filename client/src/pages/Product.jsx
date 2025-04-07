@@ -11,12 +11,12 @@ function Product(){
     const [message, setMessage] = useState("");
     const navigate = useNavigate();
     const context=useContext(Mycontext);
-    const{addProduct}=context;
+    const{addProduct,getAllProducts}=context;
 
     useEffect(() => {
         const getProducts = async () => {
           try {
-            const productData =0//= await ;
+            const productData = await getAllProducts();
             if (productData?.status === 200) {
               setProducts(productData.products);
             }
