@@ -5,7 +5,7 @@ import Mycontext from "../context/Mycontext";
 
 const AddEditProduct = () => {
     const context=useContext(Mycontext);
-    const{addProduct,updateProduct}=context;
+    const{addProduct,updateProduct,getProductById}=context;
   const { productId } = useParams();
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
@@ -21,7 +21,7 @@ const AddEditProduct = () => {
       if (productId) {
         setIsEditing(true);
         try {
-          const productData ={}; //await getProductById(productId);
+          const productData =await getProductById(productId);
           if (productData?.status === 200) {
             setName(productData.product.name);
             setPrice(productData.product.price);
@@ -61,6 +61,7 @@ const AddEditProduct = () => {
     
     try {
       if (isEditing) {
+        formData.append("productId", productId);
         await updateProduct(formData);
         showMessage("Product successfully updated");
       } else {

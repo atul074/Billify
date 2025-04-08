@@ -11,7 +11,7 @@ function Product(){
     const [message, setMessage] = useState("");
     const navigate = useNavigate();
     const context=useContext(Mycontext);
-    const{addProduct,getAllProducts}=context;
+    const{addProduct,getAllProducts,deleteProduct}=context;
 
     useEffect(() => {
         const getProducts = async () => {
@@ -32,7 +32,7 @@ function Product(){
       const handleDeleteProduct = async (productId) => {
         if (window.confirm("Are you sure you want to delete this Product?")) {
           try {
-           // await ApiService.deleteProduct(productId);
+            await deleteProduct(productId);
             showMessage("Product successfully deleted");
             setProducts(products.filter((p) => p.id !== productId));
           } catch (error) {

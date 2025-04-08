@@ -90,9 +90,11 @@ function Mystate({children}) {
 
     const updateProduct=async(formData)=>{
         try {
-            //console.log("formdata:" ,formData);
+            for (let [key, value] of formData.entries()) {
+                     console.log(key, value);
+                  }
             
-            const response = await axios.post(`http://localhost:8087/api/products/update`, formData, {
+            const response = await axios.put(`http://localhost:8087/api/products/update`, formData, {
                 headers: {
                     ...getHeader(),
                     "Content-Type": "multipart/form-data"
@@ -127,14 +129,14 @@ function Mystate({children}) {
 
     const getProductById=async (productId) => {
         const response = await axios.get(`http://localhost:8087/api/products/${productId}`, {
-            headers: this.getHeader()
+            headers: getHeader()
         });
         return response.data;
     }
 
     const deleteProduct=async (productId) => {
-        const response = await axios.get(`http://localhost:8087/api/products/delete/${productId}`, {
-            headers: this.getHeader()
+        const response = await axios.delete(`http://localhost:8087/api/products/delete/${productId}`, {
+            headers: getHeader()
         });
 
         setAllProducts(null);
@@ -161,7 +163,7 @@ function Mystate({children}) {
            getAllProducts,
            getProductById,
            deleteProduct,
-           
+
         }}>
        {children}
     </Mycontext.Provider>

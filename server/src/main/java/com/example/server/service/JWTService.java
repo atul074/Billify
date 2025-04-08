@@ -20,6 +20,8 @@ import java.util.function.Function;
 public class JWTService {
 
     private String secretKey="";
+    private static final long EXPIRATION_TIME_IN_MILLISEC = 1000L * 60L * 60L * 24L * 30L * 6L; //expires in 6 months in millisec
+
 
     public JWTService(){
         try {
@@ -40,7 +42,7 @@ public class JWTService {
                 .add(claims)
                 .subject(username)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 60 *60*30))
+                .expiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME_IN_MILLISEC))
                 .and()
                 .signWith(getKey())
                 .compact();
