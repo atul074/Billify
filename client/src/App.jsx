@@ -10,6 +10,7 @@ import Transaction from "./pages/Transaction";
 import { CheckAuth } from "./context/CheckAuth";
 import Product from "./pages/Product";
 import AddEditProduct from "./pages/AddEditProduct";
+import Profile from "./pages/Profile";
 
 function App() {
   // const context=useContext(Mycontext);
@@ -29,6 +30,7 @@ function App() {
           <Route path="/product" element={<CheckAuth><Product/></CheckAuth>}/>
           <Route path="/add-product" element={<CheckAuth><AddEditProduct/></CheckAuth>}/>
           <Route path="/edit-product/:productId" element={<CheckAuth><AddEditProduct/></CheckAuth>}/>
+          <Route path="/profile" element={<CheckAuth><Profile/></CheckAuth>}/>
           <Route path="*" element={<Login/>}/>
         </Routes>
       </Router>

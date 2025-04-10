@@ -82,4 +82,9 @@ public class UserService {
         }
         return allUsersDTO;
     }
+    public Users getUserByEmail(String email)
+    {
+        Users user=repo.findByEmail(email);
+        return user;
+    }
 }
