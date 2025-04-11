@@ -7,10 +7,7 @@ import com.example.server.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/transactions")
@@ -23,4 +20,22 @@ public class TransactionController {
     public ResponseEntity<Response> purchaseInventory(@RequestBody @Valid TransactionRequest transactionRequest) {
         return ResponseEntity.ok(transactionService.purchase(transactionRequest));
     }
+
+    @PostMapping("/sell")
+    public ResponseEntity<Response> makeSale(@RequestBody @Valid TransactionRequest transactionRequest) {
+        return ResponseEntity.ok(transactionService.sell(transactionRequest));
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<Response> getAllTransactions() {
+
+        return ResponseEntity.ok(transactionService.getAllTransactions());
+    }
+
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Response> getTransactionById(@PathVariable Long id) {
+        return ResponseEntity.ok(transactionService.getAllTransactionById(id));
+    }
+
 }
