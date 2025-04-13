@@ -15,10 +15,10 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TransactionRequest {
 
-    @Positive(message = "product id is required")
+
     private List<Long> productId;
 
-    @Positive(message = "quantity id is required")
+
     private List<Integer> quantity;
 
 

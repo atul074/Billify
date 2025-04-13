@@ -40,6 +40,7 @@ public class TransactionServiceImpl implements TransactionService {
         List<Long> productId = transactionRequest.getProductId();
         List<Integer> quantity = transactionRequest.getQuantity();
         String email=transactionRequest.getEmail();
+        System.out.println("email hai :" +email);
         List<Product> product=new ArrayList<>();
         for(Long pid:productId)
         {

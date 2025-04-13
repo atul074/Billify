@@ -144,6 +144,13 @@ function Mystate({children}) {
         return response.data;
     }
 
+    const purchaseProduct=async(body) =>{
+        const response = await axios.post(`http://localhost:8087/api/transactions/purchase`, body, {
+            headers: getHeader()
+        })
+        return response.data;
+    }
+
   return (
     <Mycontext.Provider value={
         {
@@ -163,6 +170,7 @@ function Mystate({children}) {
            getAllProducts,
            getProductById,
            deleteProduct,
+           purchaseProduct,
 
         }}>
        {children}
