@@ -12,6 +12,7 @@ import Product from "./pages/Product";
 import AddEditProduct from "./pages/AddEditProduct";
 import Profile from "./pages/Profile";
 import Purchase from "./pages/Purchase";
+import TransactionDetail from "./pages/TransactionDetail";
 
 function App() {
   // const context=useContext(Mycontext);
@@ -28,6 +29,7 @@ function App() {
           <Route path="/login" element={<Login/>}/>
           <Route path="/home" element={<CheckAuth><Home/></CheckAuth>}/>
           <Route path="/transaction" element={<CheckAuth><Transaction/></CheckAuth>}/>
+          <Route path="/transaction/:transactionId" element={<CheckAuth><TransactionDetail/></CheckAuth>}/>
           <Route path="/product" element={<CheckAuth><Product/></CheckAuth>}/>
           <Route path="/add-product" element={<CheckAuth><AddEditProduct/></CheckAuth>}/>
           <Route path="/edit-product/:productId" element={<CheckAuth><AddEditProduct/></CheckAuth>}/>

@@ -130,7 +130,10 @@ public class TransactionServiceImpl implements TransactionService {
         List<Transaction> transactions = transactionRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
 
         // Map to DTOs
-        List<TransactionDTO> transactionDTOS = modelMapper.map(transactions, new TypeToken() {
+//        List<TransactionDTO> transactionDTOS = modelMapper.map(transactions, new TypeToken() {
+//        }.getType());
+
+        List<TransactionDTO> transactionDTOS = modelMapper.map(transactions, new TypeToken<List<TransactionDTO>>() {
         }.getType());
 
         // Nullify nested objects to keep response clean
