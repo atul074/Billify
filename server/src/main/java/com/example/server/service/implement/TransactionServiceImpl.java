@@ -164,4 +164,24 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
 
+    @Override
+    public Response getAllTransactionByMonthAndYear(int month, int year) {
+        List<Transaction> transactions = transactionRepository.findAll(TransactionFilter.byMonthAndYear(month, year));
+
+        List<TransactionDTO> transactionDTOS = modelMapper.map(transactions, new TypeToken<List<TransactionDTO>>() {
+        }.getType());
+
+        transactionDTOS.forEach(transactionDTO -> {
+            transactionDTO.setUser(null);
+            transactionDTO.setProduct(null);
+        });
+
+        return Response.builder()
+                .status(200)
+                .message("success")
+                .transactions(transactionDTOS)
+                .build();
+    }
+
+
 }

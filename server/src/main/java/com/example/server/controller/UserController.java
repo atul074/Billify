@@ -1,16 +1,16 @@
 package com.example.server.controller;
+import com.example.server.dto.Response;
 import com.example.server.dto.UserDTO;
 import com.example.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @CrossOrigin
+@RequestMapping("/api/users")
 public class UserController {
 
     @Autowired
@@ -20,5 +20,10 @@ public class UserController {
     @ResponseBody
     public List<UserDTO> getAllUsers(){
         return userService.getAllUsers();
+    }
+
+    @GetMapping("/transactions/{userId}")
+    public ResponseEntity<Response> getUserAndTransactions(@PathVariable int userId) {
+        return ResponseEntity.ok(userService.getUserTransactions(userId));
     }
 }

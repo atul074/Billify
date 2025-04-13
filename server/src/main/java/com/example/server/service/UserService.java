@@ -2,9 +2,13 @@ package com.example.server.service;
 
 
 
+import com.example.server.dto.Response;
 import com.example.server.dto.UserDTO;
 import com.example.server.model.Users;
 import com.example.server.repo.UserRepo;
+import com.example.server.service.implement.NotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+@RequiredArgsConstructor
 @Service
 public class UserService {
     @Autowired
@@ -24,6 +29,9 @@ public class UserService {
 
     @Autowired
     private UserRepo repo;
+
+
+    private final ModelMapper modelMapper;
 
     private final int saltRounds=12;
 
@@ -86,5 +94,23 @@ public class UserService {
     {
         Users user=repo.findByEmail(email);
         return user;
+    }
+
+
+    public Response getUserTransactions(int id) {
+
+        Users user = repo.findById(id).orElseThrow(() -> new NotFoundException("User Not Found"));
+
+        UserDTO userDTO = modelMapper.map(user, UserDTO.class);
+
+        userDTO.getTransactions().forEach(transactionDTO -> {
+            transactionDTO.setUser(null);
+        });
+
+        return Response.builder()
+                .status(200)
+                .message("success")
+                .user(userDTO)
+                .build();
     }
 }

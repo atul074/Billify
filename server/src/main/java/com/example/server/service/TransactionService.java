@@ -11,4 +11,6 @@ public interface TransactionService {
     Response getAllTransactions();
 
     Response getAllTransactionById(Long id);
+
+    Response getAllTransactionByMonthAndYear(int month, int year);
 }

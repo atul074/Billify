@@ -38,4 +38,12 @@ public class TransactionController {
         return ResponseEntity.ok(transactionService.getAllTransactionById(id));
     }
 
+    @GetMapping("/by-month-year")
+    public ResponseEntity<Response> getTransactionByMonthAndYear(
+            @RequestParam int month,
+            @RequestParam int year) {
+
+        return ResponseEntity.ok(transactionService.getAllTransactionByMonthAndYear(month, year));
+    }
+
 }
