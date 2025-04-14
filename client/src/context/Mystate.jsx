@@ -9,6 +9,7 @@ function Mystate({children}) {
     const [userdetail, setuserdetail] = useState({});
     const [token, settoken] = useState();
     const [allProducts, setAllProducts] = useState(null); // cached data
+    const [allTemplates, setAllTemplates] = useState(null);
 
     const getHeader=()=> {
         return {
@@ -168,28 +169,95 @@ function Mystate({children}) {
     }
 
 
+    // Get all templates (cached)
+const getAllTemplates = async () => {
+    try {
+      if (allTemplates) return allTemplates;
+      const res = await axios.get("http://localhost:8087/api/templates", {
+        headers: getHeader(),
+      });
+      setAllTemplates(res.data);
+      return res.data;
+    } catch (error) {
+      alert("Error fetching templates");
+      throw error;
+    }
+  };
+  
+  // Upload new template
+  const uploadTemplate = async (formData) => {
+    try {
+      const res = await axios.post("http://localhost:8087/api/templates/upload", formData, {
+        headers: {
+          ...getHeader(),
+          "Content-Type": "multipart/form-data"
+        }
+      });
+      setAllTemplates(null);
+      await getAllTemplates();
+      return res.data;
+    } catch (error) {
+      alert("Error uploading template");
+      throw error;
+    }
+  };
+  
+  // Delete template
+  const deleteTemplate = async (id) => {
+    try {
+      const res = await axios.delete(`http://localhost:8087/api/templates/${id}`, {
+        headers: getHeader()
+      });
+      setAllTemplates(prev => prev?.filter(template => template.id !== id));
+      return res.data;
+    } catch (error) {
+      alert("Error deleting template");
+      throw error;
+    }
+  };
+  
+  // Rename template
+  const renameTemplate = async (id, newName) => {
+    try {
+      const res = await axios.put(`http://localhost:8087/api/templates/rename/${id}`, { newName }, {
+        headers: getHeader()
+      });
+      setAllTemplates(null);
+      await getAllTemplates();
+      return res.data;
+    } catch (error) {
+      alert("Error renaming template");
+      throw error;
+    }
+  };
+  
+  // Set default template
+  const setDefaultTemplate = async (id) => {
+    try {
+      const res = await axios.post(`http://localhost:8087/api/templates/default/${id}`, {}, {
+        headers: getHeader()
+      });
+      setAllTemplates(null);
+      await getAllTemplates();
+      return res.data;
+    } catch (error) {
+      alert("Error setting default template");
+      throw error;
+    }
+  };
+
+
   return (
     <Mycontext.Provider value={
         {
-            loading,
-            isAuthenticated,
-            userdetail,
-            token,
-            setuserdetail,
-            settoken,
-            setisAuthenticated,
-            setLoading,
-            registerUser,
-           loginUser,
-           logoutUser,
-           addProduct,
-           updateProduct,
-           getAllProducts,
-           getProductById,
-           deleteProduct,
-           purchaseProduct,
-           getAllTransactions,
-           getTransactionById,
+            loading, isAuthenticated,   userdetail, token, allTemplates,
+            setuserdetail, settoken,  setisAuthenticated, setLoading,
+            registerUser, loginUser, logoutUser,
+            addProduct, updateProduct, getAllProducts, getProductById,deleteProduct,
+            purchaseProduct,
+            getAllTransactions, getTransactionById,
+            getAllTemplates, uploadTemplate, deleteTemplate, renameTemplate, setDefaultTemplate,
+         
 
         }}>
        {children}

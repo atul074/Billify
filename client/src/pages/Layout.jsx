@@ -23,6 +23,7 @@ const Sidebar = () => {
         {isAuthenticated && <li><Link to="/product" className="block p-3 rounded-md hover:text-teal-500">Product</Link></li>}
         {isAuthenticated && <li><Link to="/purchase" className="block p-3 rounded-md hover:text-teal-500">Purchase</Link></li>}
         {isAuthenticated && <li><Link to="/sell" className="block p-3 rounded-md hover:text-teal-500">Sell</Link></li>}
+        {isAuthenticated && <li><Link to="/templates" className="block p-3 rounded-md hover:text-teal-500">Templates</Link></li>}
         {isAuthenticated && <li><Link to="/profile" className="block p-3 rounded-md hover:text-teal-500">Profile</Link></li>}
         { <li><Link onClick={logout} to="/login" className="block p-3 rounded-md hover:text-teal-500">Logout</Link></li>}
       </ul>
