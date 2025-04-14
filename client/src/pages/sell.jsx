@@ -13,7 +13,7 @@ const Sell = () => {
   const [message, setMessage] = useState("");
 
   const context = useContext(Mycontext);
-  const { purchaseProduct, getAllProducts, userdetail } = context;
+  const {  getAllProducts, userdetail,sellProduct } = context;
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -72,7 +72,7 @@ const Sell = () => {
     };
 
     try {
-      const response = await purchaseProduct(body);
+      const response = await sellProduct(body);
       showMessage(response.message || "Products purchased successfully!");
       resetForm();
     } catch (error) {
@@ -105,7 +105,7 @@ const Sell = () => {
       )}
       <div className="max-w-xl mx-auto mt-8 p-6 bg-gray-100 rounded-md shadow-md">
         <h1 className="text-2xl font-bold text-center mb-6 text-teal-700">
-          Receive Inventory
+          Sell Product
         </h1>
         <form onSubmit={handleSubmit}>
           {/* Buyer Info */}
@@ -205,7 +205,7 @@ const Sell = () => {
             type="submit"
             className="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded-md transition duration-300"
           >
-            Purchase Products
+            sell Products
           </button>
         </form>
       </div>

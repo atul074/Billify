@@ -153,6 +153,13 @@ function Mystate({children}) {
         return response.data;
     }
 
+    const sellProduct=async(body) =>{
+        const response = await axios.post(`http://localhost:8087/api/transactions/sell`, body, {
+            headers: getHeader()
+        })
+        return response.data;
+    }
+
 
     const getAllTransactions=async() =>{
         const response = await axios.get(`http://localhost:8087/api/transactions/all`, {
@@ -254,7 +261,7 @@ const getAllTemplates = async () => {
             setuserdetail, settoken,  setisAuthenticated, setLoading,
             registerUser, loginUser, logoutUser,
             addProduct, updateProduct, getAllProducts, getProductById,deleteProduct,
-            purchaseProduct,
+            purchaseProduct,sellProduct,
             getAllTransactions, getTransactionById,
             getAllTemplates, uploadTemplate, deleteTemplate, renameTemplate, setDefaultTemplate,
          

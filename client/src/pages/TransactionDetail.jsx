@@ -68,10 +68,10 @@ const TransactionDetail = () => {
                   {transaction.updatedAt && (
                     <p><span className="font-medium">Updated At:</span> {new Date(transaction.updatedAt).toLocaleString()}</p>
                   )}
-                  {transaction.transactionType === "sale" && (
+                  {transaction.transactionType === "SALE" && (
                     <>
-                      <p><span className="font-medium">Buyer Name:</span> {transaction.buyerName}</p>
-                      <p><span className="font-medium">Buyer Phone No:</span> {transaction.buyerPhoneNo}</p>
+                      <p className="font-bold"><span >Buyer Name:</span> {transaction.buyerName}</p>
+                      <p className="font-bold"><span >Buyer Phone No:</span> {transaction.buyerPhoneNo}</p>
                     </>
                   )}
                 </div>
