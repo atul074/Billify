@@ -27,5 +27,6 @@ public class Template {
 
     private LocalDateTime uploadedAt = LocalDateTime.now();
 
+    @Column(name = "default_template")
+    private Boolean defaultTemplate = false;
 }
-

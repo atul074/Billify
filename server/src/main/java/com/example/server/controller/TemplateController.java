@@ -4,19 +4,17 @@ import com.example.server.model.Template;
 import com.example.server.repo.TemplateRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -28,6 +26,7 @@ public class TemplateController {
 
     private final String UPLOAD_DIR = "templates/";
 
+    // ✅ Upload template
     @PostMapping("/upload")
     public ResponseEntity<Template> uploadTemplate(
             @RequestParam("file") MultipartFile file,
@@ -46,11 +45,13 @@ public class TemplateController {
         template.setOriginalName(originalName);
         template.setFileType(fileType);
         template.setUploadedBy(uploadedBy);
+        template.setDefaultTemplate(false); // default flag initially false
 
         Template saved = templateRepository.save(template);
         return ResponseEntity.ok(saved);
     }
 
+    // ✅ Get template content
     @GetMapping("/{id}")
     public ResponseEntity<Resource> getTemplate(@PathVariable Long id) throws IOException {
         Template template = templateRepository.findById(id)
@@ -67,9 +68,60 @@ public class TemplateController {
                 .body(resource);
     }
 
-    @GetMapping("/all")
+    // ✅ Get all templates
+    @GetMapping
     public List<Template> getAllTemplates() {
         return templateRepository.findAll();
     }
-}
 
+    // ✅ Delete template
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteTemplate(@PathVariable Long id) throws IOException {
+        Optional<Template> optional = templateRepository.findById(id);
+        if (optional.isEmpty()) return ResponseEntity.notFound().build();
+
+        Template template = optional.get();
+        Path path = Paths.get(UPLOAD_DIR + template.getFilename());
+        if (Files.exists(path)) Files.delete(path);
+
+        templateRepository.delete(template);
+        return ResponseEntity.ok("Template deleted successfully");
+    }
+
+    // ✅ Rename template
+    @PutMapping("/rename/{id}")
+    public ResponseEntity<Template> renameTemplate(@PathVariable Long id, @RequestBody RenameRequest request) {
+        Template template = templateRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Template not found"));
+
+        template.setOriginalName(request.getNewName());
+        Template updated = templateRepository.save(template);
+        return ResponseEntity.ok(updated);
+    }
+
+    // ✅ Set default template
+    @PostMapping("/default/{id}")
+    public ResponseEntity<Template> setDefaultTemplate(@PathVariable Long id) {
+        Template selected = templateRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Template not found"));
+
+        // Unset existing default if exists
+        templateRepository.findAll().forEach(t -> {
+            if (Boolean.TRUE.equals(t.getDefaultTemplate())) {
+                t.setDefaultTemplate(false);
+                templateRepository.save(t);
+            }
+        });
+
+        selected.setDefaultTemplate(true);
+        templateRepository.save(selected);
+        return ResponseEntity.ok(selected);
+    }
+
+    // DTO class for rename
+    public static class RenameRequest {
+        private String newName;
+        public String getNewName() { return newName; }
+        public void setNewName(String newName) { this.newName = newName; }
+    }
+}
