@@ -13,6 +13,7 @@ import AddEditProduct from "./pages/AddEditProduct";
 import Profile from "./pages/Profile";
 import Purchase from "./pages/Purchase";
 import TransactionDetail from "./pages/TransactionDetail";
+import Sell from "./pages/sell";
 
 function App() {
   // const context=useContext(Mycontext);
@@ -36,7 +37,9 @@ function App() {
 
           <Route path="/profile" element={<CheckAuth><Profile/></CheckAuth>}/>
 
+          
           <Route path="/purchase" element={<CheckAuth><Purchase/></CheckAuth>}/>
+          <Route path="/sell" element={<CheckAuth><Sell/></CheckAuth>}/>
           <Route path="*" element={<Login/>}/>
         </Routes>
       </Router>

@@ -16,7 +16,7 @@ const Sidebar = () => {
 
   return (
     <div className="w-1/5 h-screen bg-gray-900 text-white flex flex-col p-6 fixed shadow-lg">
-      <h1 className="text-center text-teal-500 font-extrabold text-xl mb-4">atul</h1>
+      <h1 className="text-center text-teal-500 font-extrabold text-xl mb-4">ATUL the Great</h1>
       <ul className="space-y-3">
         { <li><Link to="/home" className="block p-3 rounded-md hover:text-teal-500 text-amber-600">Dashboard</Link></li>}
         {isAuthenticated && <li><Link to="/transaction" className="block p-3 rounded-md hover:text-teal-500">Transactions</Link></li>}
