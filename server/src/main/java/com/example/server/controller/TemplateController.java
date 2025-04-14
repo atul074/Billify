@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+
+
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.List;
@@ -36,17 +38,20 @@ public class TemplateController {
         String fileType = file.getContentType();
         String storedName = UUID.randomUUID() + "_" + originalName;
 
+        // Save original template file
         Path path = Paths.get(UPLOAD_DIR + storedName);
         Files.createDirectories(path.getParent());
         Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
 
+        // Initialize template entity
         Template template = new Template();
         template.setFilename(storedName);
         template.setOriginalName(originalName);
         template.setFileType(fileType);
         template.setUploadedBy(uploadedBy);
-        template.setDefaultTemplate(false); // default flag initially false
+        template.setDefaultTemplate(false); // initially not default
 
+        // Save template to DB
         Template saved = templateRepository.save(template);
         return ResponseEntity.ok(saved);
     }
@@ -117,6 +122,9 @@ public class TemplateController {
         templateRepository.save(selected);
         return ResponseEntity.ok(selected);
     }
+
+
+
 
     // DTO class for rename
     public static class RenameRequest {

@@ -9,7 +9,8 @@ const TemplatePage = () => {
     uploadTemplate,
     deleteTemplate,
     renameTemplate,
-    setDefaultTemplate
+    setDefaultTemplate,
+    userdetail,
   } = useContext(Mycontext);
 
   const [templates, setTemplates] = useState([]);
@@ -27,6 +28,7 @@ const TemplatePage = () => {
     if (!file) return alert("Please select a file!");
     const formData = new FormData();
     formData.append("file", file);
+    formData.append("uploadedBy",userdetail.email)
     await uploadTemplate(formData);
     const updated = await getAllTemplates();
     setTemplates(updated);
@@ -76,7 +78,7 @@ const TemplatePage = () => {
           {templates?.map((template) => (
             <div key={template.id} className="border rounded shadow p-4 relative bg-white">
               <img
-                src={`http://localhost:8087/api/templates/${template.id}/preview`}
+                // src={`http://localhost:8087/api/templates/${template.id}/preview`}
                 alt={template.originalName}
                 className="w-full h-48 object-contain mb-2"
               />
