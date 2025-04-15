@@ -26,18 +26,44 @@ const TemplatePage = () => {
 
   const handleUpload = async () => {
     if (!file) return alert("Please select a file!");
+
+    const cloudData = await uploadImageToCloudinary(file);
+    if (!cloudData?.url) return alert("Image upload failed!");
+
     const formData = new FormData();
-    formData.append("file", file);
-    formData.append("uploadedBy",userdetail.email)
+    formData.append("fileurl", cloudData.url);
+    formData.append("uploadedBy", userdetail.email);
+    formData.append("originalName", file.name);
+
     await uploadTemplate(formData);
+
     const updated = await getAllTemplates();
     setTemplates(updated);
     setFile(null);
   };
 
+  const uploadImageToCloudinary = async (imageFile) => {
+    const data = new FormData();
+    data.append("file", imageFile);
+    data.append("upload_preset", "myCloud");
+    data.append("cloud_name", "de7imsn1h");
+
+    try {
+      const res = await fetch("https://api.cloudinary.com/v1_1/de7imsn1h/image/upload", {
+        method: "POST",
+        body: data,
+      });
+      const result = await res.json();
+      return result;
+    } catch (error) {
+      console.error("Cloudinary upload error:", error);
+      return null;
+    }
+  };
+
   const handleDelete = async (id) => {
     await deleteTemplate(id);
-    setTemplates(prev => prev.filter(t => t.id !== id));
+    setTemplates((prev) => prev.filter((t) => t.id !== id));
   };
 
   const handleRename = async (id) => {
@@ -78,13 +104,15 @@ const TemplatePage = () => {
           {templates?.map((template) => (
             <div key={template.id} className="border rounded shadow p-4 relative bg-white">
               <img
-                // src={`http://localhost:8087/api/templates/${template.id}/preview`}
+                src={template.fileurl}
                 alt={template.originalName}
                 className="w-full h-48 object-contain mb-2"
               />
               <p className="font-medium text-center">{template.originalName}</p>
               {template.defaultTemplate && (
-                <span className="absolute top-2 right-2 bg-green-600 text-white px-2 py-1 text-xs rounded">Default</span>
+                <span className="absolute top-2 right-2 bg-green-600 text-white px-2 py-1 text-xs rounded">
+                  Default
+                </span>
               )}
               <div className="flex justify-between mt-2">
                 <button

@@ -11,12 +11,7 @@ function Mystate({children}) {
     const [allProducts, setAllProducts] = useState(null); // cached data
     const [allTemplates, setAllTemplates] = useState(null);
 
-    const getHeader=()=> {
-        return {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-        }
-    };
+    
 
     const registerUser = async (credentials) =>  {
         //console.log("aa raha");
@@ -264,6 +259,13 @@ const getAllTemplates = async () => {
       throw error;
     }
   };
+
+  const getHeader=()=> {
+    return {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+    }
+};
   
 
 
