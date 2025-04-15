@@ -253,6 +253,19 @@ const getAllTemplates = async () => {
     }
   };
 
+  const getDefaultTemplate = async () => {
+    try {
+      const res = await axios.get(`http://localhost:8087/api/templates/default`, {
+        headers: getHeader(),
+      });
+      return res.data;
+    } catch (error) {
+      alert("Error fetching default template");
+      throw error;
+    }
+  };
+  
+
 
   return (
     <Mycontext.Provider value={
@@ -263,7 +276,7 @@ const getAllTemplates = async () => {
             addProduct, updateProduct, getAllProducts, getProductById,deleteProduct,
             purchaseProduct,sellProduct,
             getAllTransactions, getTransactionById,
-            getAllTemplates, uploadTemplate, deleteTemplate, renameTemplate, setDefaultTemplate,
+            getAllTemplates, uploadTemplate, deleteTemplate, renameTemplate, setDefaultTemplate,  getDefaultTemplate,
          
 
         }}>

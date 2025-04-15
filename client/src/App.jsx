@@ -41,8 +41,8 @@ function App() {
 
           
           <Route path="/purchase" element={<CheckAuth><Purchase/></CheckAuth>}/>
-          {/* <Route path="/sell" element={<CheckAuth><SellWithInvoicePreview/></CheckAuth>}/> */}
-          <Route path="/sell" element={<CheckAuth><Sell/></CheckAuth>}/>
+          <Route path="/sell" element={<CheckAuth><SellWithInvoicePreview/></CheckAuth>}/>
+          {/* <Route path="/sell" element={<CheckAuth><Sell/></CheckAuth>}/> */}
           <Route path="/templates" element={<TemplatePage />} />
 
           <Route path="*" element={<Login/>}/>

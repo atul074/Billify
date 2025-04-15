@@ -124,6 +124,51 @@ public class TemplateController {
     }
 
 
+    // ✅ Get default template
+//    @GetMapping("/default")
+//    public ResponseEntity<Template> getDefaultTemplate() {
+//        Optional<Template> optional = templateRepository.findAll().stream()
+//                .filter(Template::getDefaultTemplate)
+//                .findFirst();
+//
+//        return optional.map(ResponseEntity::ok)
+//                .orElse(ResponseEntity.notFound().build());
+//    }
+
+    @GetMapping("/default")
+    public ResponseEntity<Resource> getDefaultTemplate() throws IOException {
+        // Find the default template
+        Optional<Template> optional = templateRepository.findAll().stream()
+                .filter(Template::getDefaultTemplate)
+                .findFirst();
+
+        // If no default template found, return 404
+        if (optional.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Template template = optional.get();
+
+        // Get the path of the file
+        Path path = Paths.get(UPLOAD_DIR + template.getFilename());
+
+        // If the file doesn't exist, return 404
+        if (!Files.exists(path)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Create a resource from the file
+        ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+
+        // Return the file as a response
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(template.getFileType())) // Get file type from the template
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline;filename=\"" + template.getOriginalName() + "\"")
+                .body(resource);
+    }
+
+
+
 
 
     // DTO class for rename
