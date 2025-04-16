@@ -144,14 +144,18 @@ function Mystate({children}) {
     const purchaseProduct=async(body) =>{
         const response = await axios.post(`http://localhost:8087/api/transactions/purchase`, body, {
             headers: getHeader()
-        })
+        });
+        setAllProducts(null);
+        getAllProducts();
         return response.data;
     }
 
     const sellProduct=async(body) =>{
         const response = await axios.post(`http://localhost:8087/api/transactions/sell`, body, {
             headers: getHeader()
-        })
+        });
+        setAllProducts(null);
+        getAllProducts();
         return response.data;
     }
 
@@ -253,7 +257,9 @@ const getAllTemplates = async () => {
       const res = await axios.get(`http://localhost:8087/api/templates/default`, {
         headers: getHeader(),
       });
-      return res.data;
+      console.log(res);
+      
+      return res;
     } catch (error) {
       alert("Error fetching default template");
       throw error;

@@ -97,7 +97,7 @@ public class TransactionServiceImpl implements TransactionService {
         Integer totalQuantity=0;
         for (int i = 0; i < product.size(); i++)
         {
-            product.get(i).setStockQuantity(product.get(i).getStockQuantity()+quantity.get(i));
+            product.get(i).setStockQuantity(product.get(i).getStockQuantity()-quantity.get(i));
             productRepository.save(product.get(i));
 
             totalPrice=totalPrice.add(product.get(i).getPrice().multiply(BigDecimal.valueOf(quantity.get(i))));
