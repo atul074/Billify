@@ -12,9 +12,10 @@ const TemplatePage = () => {
     setDefaultTemplate,
     userdetail,
   } = useContext(Mycontext);
-
+  
   const [templates, setTemplates] = useState([]);
   const [file, setFile] = useState(null);
+  const [imageLoadingState, setImageLoadingState] = useState(false);
 
   useEffect(() => {
     const fetchTemplates = async () => {
@@ -46,6 +47,7 @@ const TemplatePage = () => {
   };
 
   const uploadImageToCloudinary = async (imageFile) => {
+    setImageLoadingState(true);
     const data = new FormData();
     data.append("file", imageFile);
     data.append("upload_preset", "myCloud");
@@ -57,9 +59,11 @@ const TemplatePage = () => {
         body: data,
       });
       const result = await res.json();
+      setImageLoadingState(false);
       return result;
     } catch (error) {
       console.error("Cloudinary upload error:", error);
+      setImageLoadingState(false);
       return null;
     }
   };
@@ -102,6 +106,7 @@ const TemplatePage = () => {
             Upload Template
           </button>
         </div>
+        {imageLoadingState && <div> Image Uploading...</div>}
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
           {templates?.map((template) => (
