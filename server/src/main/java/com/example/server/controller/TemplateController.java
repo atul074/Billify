@@ -214,6 +214,7 @@ public class TemplateController {
         template.setFileType("image/jpeg"); // or dynamically set if passed
         template.setDefaultTemplate(false);
 
+        System.out.println(template);
         Template saved = templateRepository.save(template);
         return ResponseEntity.ok(saved);
     }

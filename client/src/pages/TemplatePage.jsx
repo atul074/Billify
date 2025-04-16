@@ -20,6 +20,8 @@ const TemplatePage = () => {
     const fetchTemplates = async () => {
       const data = await getAllTemplates();
       setTemplates(data);
+      console.log(data);
+      
     };
     fetchTemplates();
   }, [getAllTemplates]);
@@ -34,7 +36,8 @@ const TemplatePage = () => {
     formData.append("fileurl", cloudData.url);
     formData.append("uploadedBy", userdetail.email);
     formData.append("originalName", file.name);
-
+    console.log(formData);
+    
     await uploadTemplate(formData);
 
     const updated = await getAllTemplates();
@@ -104,7 +107,7 @@ const TemplatePage = () => {
           {templates?.map((template) => (
             <div key={template.id} className="border rounded shadow p-4 relative bg-white">
               <img
-                src={template.fileurl}
+                src={template.filename}
                 alt={template.originalName}
                 className="w-full h-48 object-contain mb-2"
               />
