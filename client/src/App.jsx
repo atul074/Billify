@@ -16,6 +16,7 @@ import TransactionDetail from "./pages/TransactionDetail";
 import Sell from "./pages/sell";
 import TemplatePage from "./pages/TemplatePage";
 import SellWithInvoicePreview from "./pages/SellWithInvoicePreview";
+import Sell2 from "./pages/SellWithInvoicePreview";
 
 function App() {
   // const context=useContext(Mycontext);
@@ -41,7 +42,7 @@ function App() {
 
           
           <Route path="/purchase" element={<CheckAuth><Purchase/></CheckAuth>}/>
-          <Route path="/sell" element={<CheckAuth><SellWithInvoicePreview/></CheckAuth>}/>
+          <Route path="/sell" element={<CheckAuth><Sell2/></CheckAuth>}/>
           {/* <Route path="/sell" element={<CheckAuth><Sell/></CheckAuth>}/> */}
           <Route path="/templates" element={<TemplatePage />} />
 
