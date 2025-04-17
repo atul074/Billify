@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
 import Layout from "./Layout";
-
 import {
   LineChart,
   Line,
@@ -23,7 +22,7 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const context = useContext(Mycontext);
-  const { userdetail,   getAllTransactions, } = context;
+  const { userdetail, getAllTransactions } = context;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -97,7 +96,7 @@ const Home = () => {
   const dataOptions = [
     { key: "count", label: "Total Transactions" },
     { key: "quantity", label: "Product Quantity" },
-    { key: "amount", label: "Amount ($)" }
+    { key: "amount", label: "Amount (₹)" }
   ];
 
   const monthOptions = Array.from({ length: 12 }, (_, i) => ({
@@ -116,149 +115,174 @@ const Home = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="min-h-screen bg-gray-50 p-4 md:p-8"
+        className="min-h-screen bg-white p-4 md:p-8"
       >
         {message && (
           <motion.div
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -20, opacity: 0 }}
-            className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-lg shadow-sm"
+            className="bg-gradient-to-r from-green-400 to-blue-500 text-white p-4 mb-6 rounded-lg shadow-lg"
             role="alert"
           >
-            <p>{message}</p>
+            <p className="font-medium">{message}</p>
           </motion.div>
         )}
 
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold text-teal-800 mb-8 text-center">Sales Dashboard</h1>
-          
-          {/* Data Type Selector */}
-          <motion.div 
-            className="flex flex-wrap justify-center gap-4 mb-8"
-            initial={{ y: 20, opacity: 0 }}
+          <motion.h1 
+            initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2 }}
+            className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-teal-500 mb-6 text-center"
           >
-            {dataOptions.map((option) => (
-              <motion.button
-                key={option.key}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className={`px-6 py-3 rounded-lg font-medium transition-colors ${
-                  selectedData === option.key
-                    ? "bg-teal-700 text-white shadow-md"
-                    : "bg-white text-teal-700 border border-teal-700 hover:bg-teal-50"
-                }`}
-                onClick={() => setSelectedData(option.key)}
+            Sales Analytics Dashboard
+          </motion.h1>
+          
+          {/* Summary Cards - Moved to top */}
+          {!isLoading && transactionData.length > 0 && (
+            <motion.div 
+              className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6"
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              <motion.div 
+                whileHover={{ y: -5 }}
+                className="bg-white p-4 rounded-xl shadow-md border-b-4 border-blue-500"
               >
-                {option.label}
-              </motion.button>
-            ))}
-          </motion.div>
+                <h3 className="text-gray-500 text-sm font-medium">Transactions</h3>
+                <p className="text-2xl font-bold text-gray-800 mt-1">
+                  {transactionData.reduce((sum, day) => sum + day.count, 0)}
+                </p>
+              </motion.div>
+              <motion.div 
+                whileHover={{ y: -5 }}
+                className="bg-white p-4 rounded-xl shadow-md border-b-4 border-purple-500"
+              >
+                <h3 className="text-gray-500 text-sm font-medium">Products Sold</h3>
+                <p className="text-2xl font-bold text-gray-800 mt-1">
+                  {transactionData.reduce((sum, day) => sum + day.quantity, 0)}
+                </p>
+              </motion.div>
+              <motion.div 
+                whileHover={{ y: -5 }}
+                className="bg-white p-4 rounded-xl shadow-md border-b-4 border-teal-500"
+              >
+                <h3 className="text-gray-500 text-sm font-medium">Total Revenue</h3>
+                <p className="text-2xl font-bold text-gray-800 mt-1">
+                ₹{transactionData.reduce((sum, day) => sum + day.amount, 0).toFixed(2)}
+                </p>
+              </motion.div>
+            </motion.div>
+          )}
 
-          {/* Filters */}
+          {/* Compact Filters Section */}
           <motion.div 
-            className="flex flex-col md:flex-row justify-center items-center gap-4 mb-8"
-            initial={{ y: 20, opacity: 0 }}
+            className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 bg-gray-50 p-4 rounded-xl shadow-sm"
+            initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
-            <div className="flex items-center gap-2">
-              <label htmlFor="month-select" className="text-gray-700 font-medium">
-                Month:
-              </label>
-              <select
-                id="month-select"
-                value={selectedMonth}
-                onChange={handleMonthChange}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
-              >
-                {monthOptions.map((month) => (
-                  <option key={month.value} value={month.value}>
-                    {month.label}
-                  </option>
-                ))}
-              </select>
+            <div className="flex flex-wrap gap-3">
+              {dataOptions.map((option) => (
+                <motion.button
+                  key={option.key}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    selectedData === option.key
+                      ? "bg-gradient-to-r from-blue-600 to-teal-500 text-white shadow-md"
+                      : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-100"
+                  }`}
+                  onClick={() => setSelectedData(option.key)}
+                >
+                  {option.label}
+                </motion.button>
+              ))}
             </div>
 
-            <div className="flex items-center gap-2">
-              <label htmlFor="year-select" className="text-gray-700 font-medium">
-                Year:
-              </label>
-              <select
-                id="year-select"
-                value={selectedYear}
-                onChange={handleYearChange}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
-              >
-                {yearOptions.map((year) => (
-                  <option key={year.value} value={year.value}>
-                    {year.label}
-                  </option>
-                ))}
-              </select>
+            <div className="flex flex-wrap gap-3">
+              <div className="flex items-center gap-2">
+                <select
+                  value={selectedMonth}
+                  onChange={handleMonthChange}
+                  className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
+                >
+                  {monthOptions.map((month) => (
+                    <option key={month.value} value={month.value}>
+                      {month.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <select
+                  value={selectedYear}
+                  onChange={handleYearChange}
+                  className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
+                >
+                  {yearOptions.map((year) => (
+                    <option key={year.value} value={year.value}>
+                      {year.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
           </motion.div>
 
           {/* Chart Section */}
           <motion.div 
-            className="bg-white rounded-xl shadow-lg p-6 mb-8"
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
+            className="bg-white rounded-xl shadow-lg p-4"
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.4 }}
           >
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
-              Daily {dataOptions.find(o => o.key === selectedData)?.label} - {monthOptions[selectedMonth-1]?.label} {selectedYear}
-            </h2>
-            
             {isLoading ? (
-              <div className="h-96 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-500"></div>
+              <div className="h-80 flex items-center justify-center">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"
+                ></motion.div>
               </div>
             ) : (
-              <div className="h-96">
+              <div className="h-80">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart
                     data={transactionData}
-                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                    margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                     <XAxis 
                       dataKey="day" 
-                      label={{ 
-                        value: 'Day of Month', 
-                        position: 'insideBottomRight', 
-                        offset: -10,
-                        fill: '#6b7280'
-                      }} 
-                      tick={{ fill: '#6b7280' }}
+                      tick={{ fill: '#6b7280', fontSize: 12 }}
                     />
                     <YAxis 
-                      tick={{ fill: '#6b7280' }}
-                      label={{ 
-                        value: selectedData === 'amount' ? 'Amount ($)' : selectedData === 'quantity' ? 'Quantity' : 'Count',
-                        angle: -90, 
-                        position: 'insideLeft',
-                        fill: '#6b7280'
-                      }} 
+                      tick={{ fill: '#6b7280', fontSize: 12 }}
                     />
                     <Tooltip 
                       contentStyle={{
-                        backgroundColor: '#ffffff',
-                        borderRadius: '0.5rem',
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                        border: 'none'
+                        background: 'rgba(255, 255, 255, 0.96)',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                        border: 'none',
+                        fontSize: '12px'
                       }}
                     />
-                    <Legend />
+                    <Legend 
+                      wrapperStyle={{
+                        paddingTop: '20px'
+                      }}
+                    />
                     <Line
                       type="monotone"
                       dataKey={selectedData}
-                      stroke="#0d9488"
+                      stroke="#3b82f6"
                       strokeWidth={2}
-                      dot={{ r: 4 }}
-                      activeDot={{ r: 6, stroke: '#115e59', strokeWidth: 2 }}
+                      dot={{ r: 3 }}
+                      activeDot={{ r: 5, stroke: '#1d4ed8', strokeWidth: 2 }}
                       name={dataOptions.find(o => o.key === selectedData)?.label}
                     />
                   </LineChart>
@@ -266,35 +290,6 @@ const Home = () => {
               </div>
             )}
           </motion.div>
-
-          {/* Summary Cards */}
-          {!isLoading && transactionData.length > 0 && (
-            <motion.div 
-              className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
-              <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-teal-500">
-                <h3 className="text-gray-500 font-medium">Total Transactions</h3>
-                <p className="text-3xl font-bold text-gray-800 mt-2">
-                  {transactionData.reduce((sum, day) => sum + day.count, 0)}
-                </p>
-              </div>
-              <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-blue-500">
-                <h3 className="text-gray-500 font-medium">Total Products Sold</h3>
-                <p className="text-3xl font-bold text-gray-800 mt-2">
-                  {transactionData.reduce((sum, day) => sum + day.quantity, 0)}
-                </p>
-              </div>
-              <div className="bg-white p-6 rounded-xl shadow-lg border-l-4 border-green-500">
-                <h3 className="text-gray-500 font-medium">Total Revenue</h3>
-                <p className="text-3xl font-bold text-gray-800 mt-2">
-                  ${transactionData.reduce((sum, day) => sum + day.amount, 0).toFixed(2)}
-                </p>
-              </div>
-            </motion.div>
-          )}
         </div>
       </motion.div>
     </Layout>
