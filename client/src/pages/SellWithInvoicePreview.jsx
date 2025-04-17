@@ -4,7 +4,7 @@ import Layout from "./Layout";
 import Mycontext from "../context/Mycontext";
 import { generateInvoiceData, downloadInvoicePDF, InvoicePreview} from "./InvoicePreview" 
 
-const Sell2 = () => {
+const Sell = () => {
   const [products, setProducts] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([
     { productId: "", quantity: "" },
@@ -242,4 +242,4 @@ const Sell2 = () => {
   );
 };
 
-export default Sell2;
+export default Sell;

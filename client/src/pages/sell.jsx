@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import Layout from "./Layout";
 import Mycontext from "../context/Mycontext";
 
-const Sell = () => {
+const Sell2 = () => {
   const [products, setProducts] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([
     { productId: "", quantity: "" },
@@ -213,4 +213,4 @@ const Sell = () => {
   );
 };
 
-export default Sell;
+export default Sell2;

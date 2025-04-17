@@ -13,18 +13,11 @@ import AddEditProduct from "./pages/AddEditProduct";
 import Profile from "./pages/Profile";
 import Purchase from "./pages/Purchase";
 import TransactionDetail from "./pages/TransactionDetail";
-import Sell from "./pages/sell";
 import TemplatePage from "./pages/TemplatePage";
-import SellWithInvoicePreview from "./pages/SellWithInvoicePreview";
-import Sell2 from "./pages/SellWithInvoicePreview";
+import Sell from "./pages/SellWithInvoicePreview";
 
 function App() {
-  // const context=useContext(Mycontext);
-  // console.log(context);
-  
-  // const {loading}=context;
-  
-  //if (loading) return(<div className='text-3xl text-center mt-40'> Loading....</div> );
+
   return (
     <Mystate>
       <Router>
@@ -42,8 +35,7 @@ function App() {
 
           
           <Route path="/purchase" element={<CheckAuth><Purchase/></CheckAuth>}/>
-          <Route path="/sell" element={<CheckAuth><Sell2/></CheckAuth>}/>
-          {/* <Route path="/sell" element={<CheckAuth><Sell/></CheckAuth>}/> */}
+          <Route path="/sell" element={<CheckAuth><Sell/></CheckAuth>}/>
           <Route path="/templates" element={<TemplatePage />} />
 
           <Route path="*" element={<Login/>}/>
