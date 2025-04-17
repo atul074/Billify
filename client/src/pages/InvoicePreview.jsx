@@ -1,20 +1,15 @@
-
 import html2pdf from 'html2pdf.js';
 
 export const generateInvoiceData = (formData, products, user) => {
   const { selectedProducts, buyerName, buyerPhoneNo, note } = formData;
-  console.log("products: ", products);
   
   const invoiceItems = selectedProducts
     .filter(item => item.productId && item.quantity)
     .map(item => {
-      console.log("item: ", item);
-      
       const product = products.find(p => 
         String(p.productId) === String(item.productId) || 
         String(p.id) === String(item.productId)
       );
-      console.log(product);
       
       return {
         name: product?.name || "Unknown Product",
@@ -29,8 +24,12 @@ export const generateInvoiceData = (formData, products, user) => {
   }
 
   const subtotal = invoiceItems.reduce((sum, item) => sum + item.total, 0);
-  const invoiceNumber = `INV-${Date.now()}`;
-  const date = new Date().toLocaleDateString();
+  const invoiceNumber = `INV-${Date.now().toString().slice(-6)}`;
+  const date = new Date().toLocaleDateString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
+  });
 
   return {
     invoiceNumber,
@@ -38,8 +37,8 @@ export const generateInvoiceData = (formData, products, user) => {
     seller: {
       name: user.username,
       email: user.email,
-      phoneNo:user.phoneNo,
-      address:user.address
+      phoneNo: user.phoneNo,
+      address: user.address
     },
     buyer: {
       name: buyerName,
@@ -51,76 +50,187 @@ export const generateInvoiceData = (formData, products, user) => {
   };
 };
 
-
-const generateInvoiceHTML = (invoiceData) => {
+const generateInvoiceHTML = (invoiceData, template) => {
   return `
-    <div style="background-color: rgba(255, 255, 255, 0.8); 
-      padding: 30px; 
-      border-radius: 5px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      ">
-      <h1 style="text-align: center; color: #0d9488; margin-bottom: 30px;">INVOICE</h1>
-      
-      <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
-        <div>
-          <p><strong>Invoice #:</strong> ${invoiceData.invoiceNumber}</p>
-          <p><strong>Date:</strong> ${invoiceData.date}</p>
-        </div>
-      </div>
-      
-      <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
-        <div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; width: 48%; background-color: rgba(255, 255, 255, 0.9);">
-          <h3 style="color: #0d9488; margin-top: 0;">Seller Information</h3>
-          <p><strong>Name:</strong> ${invoiceData.seller.name}</p>
-          <p><strong>Email:</strong> ${invoiceData.seller.email}</p>
-         
-        </div>
-        
-        <div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; width: 48%; background-color: rgba(255, 255, 255, 0.9);">
-          <h3 style="color: #0d9488; margin-top: 0;">Buyer Information</h3>
-          <p><strong>Name:</strong> ${invoiceData.buyer.name}</p>
-          <p><strong>Phone:</strong> ${invoiceData.buyer.phone}</p>
-        </div>
-      </div>
-      
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px; background-color: rgba(255, 255, 255, 0.9);">
-        <thead>
-          <tr style="background-color: #0d9488; color: white;">
-            <th style="padding: 10px; text-align: left;">Product</th>
-            <th style="padding: 10px; text-align: right;">Quantity</th>
-            <th style="padding: 10px; text-align: right;">Price</th>
-            <th style="padding: 10px; text-align: right;">Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${invoiceData.items.map((item, index) => `
-            <tr style="${index % 2 === 0 ? 'background-color: rgba(243, 244, 246, 0.7);' : ''}">
-              <td style="padding: 10px; border-bottom: 1px solid #ddd;">${item.name}</td>
-              <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right;">${item.quantity}</td>
-              <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right;">$${item.price.toFixed(2)}</td>
-              <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: right;">$${item.total.toFixed(2)}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-        <tfoot>
-          <tr>
-            <td colspan="3" style="padding: 10px; text-align: right; font-weight: bold; border-top: 2px solid #0d9488;">Subtotal:</td>
-            <td style="padding: 10px; text-align: right; font-weight: bold; border-top: 2px solid #0d9488;">$${invoiceData.subtotal.toFixed(2)}</td>
-          </tr>
-        </tfoot>
-      </table>
-      
-      ${invoiceData.note ? `
-        <div style="margin-bottom: 30px; background-color: rgba(255, 255, 255, 0.9); padding: 15px; border-radius: 5px;">
-          <p style="font-weight: bold; margin-bottom: 5px;">Note:</p>
-          <p>${invoiceData.note}</p>
-        </div>
+    <div style="
+      position: relative;
+      width: 800px;
+      margin: 0 auto;
+      padding: 40px;
+      font-family: 'Arial', sans-serif;
+      color: #333;
+      line-height: 1.5;
+    ">
+      <!-- Background Template -->
+      ${template ? `
+        <div style="
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-image: url(${template});
+          background-size: cover;
+          background-position: center;
+          background-repeat: no-repeat;
+          opacity: 0.1;
+          z-index: 0;
+        "></div>
       ` : ''}
-      
-      <div style="text-align: center; color: #666; margin-top: 40px;">
-      <p><strong>Contact No. :</strong> ${invoiceData.seller.phoneNo}</p>
-        <p><strong>Address :</strong> ${invoiceData.seller.address}</p>
-        <p>Thank you for your business!</p>
+
+      <!-- Content Container -->
+      <div style="position: relative; z-index: 10;">
+        <!-- Header -->
+        <div style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 30px;
+          padding-bottom: 20px;
+          border-bottom: 1px solid #e2e8f0;
+        ">
+          <div>
+            <h1 style="
+              font-size: 28px;
+              font-weight: 700;
+              color: #0d9488;
+              margin: 0;
+            ">
+              INVOICE
+            </h1>
+            <p style="color: #64748b; margin: 5px 0 0; font-size: 14px;">#${invoiceData.invoiceNumber}</p>
+          </div>
+          <div style="text-align: right;">
+            <p style="color: #64748b; margin: 8px 0 0; font-size: 14px;">${invoiceData.date}</p>
+          </div>
+        </div>
+
+        <!-- Seller/Buyer Info -->
+        <div style="
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 30px;
+          margin-bottom: 40px;
+        ">
+          <div>
+            <h3 style="
+              font-size: 16px;
+              font-weight: 600;
+              color: #0d9488;
+              margin-bottom: 12px;
+              border-bottom: 2px solid #0d9488;
+              padding-bottom: 6px;
+              display: inline-block;
+            ">
+              SELLER DETAILS
+            </h3>
+            <div style="margin-top: 12px; font-size: 14px;">
+              <p style="margin: 8px 0;"><strong>Name:</strong> ${invoiceData.seller.name}</p>
+              <p style="margin: 8px 0;"><strong>Email:</strong> ${invoiceData.seller.email}</p>
+              <p style="margin: 8px 0;"><strong>Phone:</strong> ${invoiceData.seller.phoneNo}</p>
+              <p style="margin: 8px 0;"><strong>Address:</strong> ${invoiceData.seller.address}</p>
+            </div>
+          </div>
+          
+          <div>
+            <h3 style="
+              font-size: 16px;
+              font-weight: 600;
+              color: #0d9488;
+              margin-bottom: 12px;
+              border-bottom: 2px solid #0d9488;
+              padding-bottom: 6px;
+              display: inline-block;
+            ">
+              BUYER DETAILS
+            </h3>
+            <div style="margin-top: 12px; font-size: 14px;">
+              <p style="margin: 8px 0;"><strong>Name:</strong> ${invoiceData.buyer.name}</p>
+              <p style="margin: 8px 0;"><strong>Phone:</strong> ${invoiceData.buyer.phone}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Items Table -->
+        <table style="
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 30px;
+          font-size: 14px;
+        ">
+          <thead>
+            <tr style="
+              background-color: #0d9488;
+              color: white;
+              font-weight: 600;
+            ">
+              <th style="padding: 12px 16px; text-align: left;">Item</th>
+              <th style="padding: 12px 16px; text-align: right;">Qty</th>
+              <th style="padding: 12px 16px; text-align: right;">Price</th>
+              <th style="padding: 12px 16px; text-align: right;">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${invoiceData.items.map((item, index) => `
+              <tr style="${index % 2 === 0 ? 'background-color: rgba(248, 250, 252, 0.8);' : 'background-color: rgba(255, 255, 255, 0.8);'}">
+                <td style="padding: 12px 16px; border-bottom: 1px solid #e2e8f0;">${item.name}</td>
+                <td style="padding: 12px 16px; text-align: right; border-bottom: 1px solid #e2e8f0;">${item.quantity}</td>
+                <td style="padding: 12px 16px; text-align: right; border-bottom: 1px solid #e2e8f0;">₹${item.price.toFixed(2)}</td>
+                <td style="padding: 12px 16px; text-align: right; border-bottom: 1px solid #e2e8f0;">₹${item.total.toFixed(2)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <!-- Total -->
+        <div style="
+          display: flex;
+          justify-content: flex-end;
+          margin-bottom: 30px;
+        ">
+          <div style="width: 300px;">
+            <div style="
+              display: flex;
+              justify-content: space-between;
+              padding: 12px 16px;
+              background-color: rgba(248, 250, 252, 0.8);
+              border-radius: 6px;
+              font-weight: 600;
+              font-size: 14px;
+            ">
+              <span>Subtotal</span>
+              <span>₹${invoiceData.subtotal.toFixed(2)}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Note -->
+        ${invoiceData.note ? `
+          <div style="
+            margin-bottom: 30px;
+            padding: 16px;
+            background-color: rgba(240, 253, 250, 0.8);
+            border-left: 4px solid #0d9488;
+            border-radius: 0 6px 6px 0;
+            font-size: 14px;
+          ">
+            <p style="font-weight: 600; color: #0d9488; margin-bottom: 8px;">Note</p>
+            <p style="margin: 0; color: #334155;">${invoiceData.note}</p>
+          </div>
+        ` : ''}
+
+        <!-- Footer -->
+        <div style="
+          text-align: center;
+          padding-top: 30px;
+          margin-top: 40px;
+          border-top: 1px solid #e2e8f0;
+          color: #64748b;
+          font-size: 14px;
+        ">
+          <p style="margin: 0 0 8px;">Thank you for your business!</p>
+          <p style="margin: 0;">Please contact us if you have any questions</p>
+        </div>
       </div>
     </div>
   `;
@@ -129,107 +239,73 @@ const generateInvoiceHTML = (invoiceData) => {
 export const downloadInvoicePDF = (invoiceData, template) => {
   if (!invoiceData) return;
 
-  // Create a temporary div to hold the invoice HTML
   const element = document.createElement('div');
+  element.style.width = '800px';
+  element.style.margin = '0 auto';
   
-  // Add background image if template exists
-  element.innerHTML = `
-    <div style="
-      position: relative;
-      width: 100%;
-      min-height: 100vh;
-      ${template ? `
-        background-image: url(${template});
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-      ` : ''}
-    ">
-      ${template ? `
-        <div style="
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: rgba(255, 255, 255, 0.85);
-          z-index: 0;
-        "></div>
-      ` : ''}
-      
-      <div style="
-        position: relative;
-        z-index: 10;
-        width: 800px;
-        margin: 0 auto;
-        padding: 40px;
-      ">
-        ${generateInvoiceHTML(invoiceData)}
-      </div>
-    </div>
-  `;
+  element.innerHTML = generateInvoiceHTML(invoiceData, template);
 
   document.body.appendChild(element);
 
-  // PDF options
   const opt = {
-    margin: 0, // Set margin to 0 for full-page background
+    margin: 0,
     filename: `invoice_${invoiceData.invoiceNumber}.pdf`,
     image: { 
       type: 'jpeg', 
-      quality: 0.98 
+      quality: 1
     },
     html2canvas: { 
-      scale: 2,
+      scale: 3,
       useCORS: true,
+      letterRendering: true,
       allowTaint: true,
       logging: true,
       backgroundColor: null,
-      scrollX: 0,
-      scrollY: 0,
-      windowWidth: element.scrollWidth,
-      windowHeight: element.scrollHeight
+      width: 800
     },
     jsPDF: { 
       unit: 'mm', 
       format: 'a4', 
-      orientation: 'portrait' 
+      orientation: 'portrait',
+      compress: false
     }
   };
 
-  // Generate PDF
-  html2pdf()
-    .set(opt)
-    .from(element)
-    .save()
-    .then(() => {
-      document.body.removeChild(element);
-    })
-    .catch(error => {
-      console.error('Error generating PDF:', error);
-      document.body.removeChild(element);
-    });
+  // Ensure the image is loaded before generating PDF
+  const images = element.getElementsByTagName('img');
+  if (images.length > 0) {
+    images[0].onload = () => {
+      setTimeout(() => {
+        html2pdf()
+          .set(opt)
+          .from(element)
+          .save()
+          .then(() => {
+            document.body.removeChild(element);
+          });
+      }, 500);
+    };
+  } else {
+    setTimeout(() => {
+      html2pdf()
+        .set(opt)
+        .from(element)
+        .save()
+        .then(() => {
+          document.body.removeChild(element);
+        });
+    }, 500);
+  }
 };
 
-export const InvoicePreview = ({ invoiceData, template, onDownload, onNewSale }) => {
+export const InvoicePreview = ({ invoiceData, template }) => {
   if (!invoiceData) return null;
 
-  // Style object for the background image
-  const backgroundStyle = template ? {
-    backgroundImage: `url(${template})`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    backgroundBlendMode: 'overlay'
-  } : {};
-
   return (
-    <div className="bg-white p-6 rounded-md shadow-md relative overflow-hidden">
+    <div className="relative bg-white rounded-xl overflow-hidden p-8 max-w-4xl mx-auto">
       {/* Background image with overlay */}
       {template && (
-        <div className="absolute inset-0 z-0 opacity-20">
+        <div className="absolute inset-0 z-0 opacity-10">
           <img 
             src={template} 
             alt="Invoice background" 
@@ -238,83 +314,442 @@ export const InvoicePreview = ({ invoiceData, template, onDownload, onNewSale })
         </div>
       )}
       
-      {/* Content with semi-transparent background */}
-      <div 
-        className="relative z-10 bg-white bg-opacity-90 p-6 rounded-md"
-        style={backgroundStyle}
-      >
-        <h2 className="text-xl font-bold mb-4">Invoice #{invoiceData.invoiceNumber}</h2>
-        <div className="grid grid-cols-2 gap-4 mb-6">
+      {/* Content */}
+      <div className="relative z-10">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-6 border-b border-gray-200">
           <div>
-            <h3 className="font-semibold">Seller</h3>
-            {console.log("seller ", invoiceData.seller)}
-            
-            <p>{invoiceData.seller.name}</p>
-            <p>{invoiceData.seller.phoneNo}</p>
-            <p>{invoiceData.seller.email}</p>
-            <p>{invoiceData.seller.address}</p>
+            <h1 className="text-3xl font-bold text-teal-600">INVOICE</h1>
+            <p className="text-gray-500 text-sm">#{invoiceData.invoiceNumber}</p>
           </div>
-          <div>
-            <h3 className="font-semibold">Buyer</h3>
-            <p>{invoiceData.buyer.name}</p>
-            <p>{invoiceData.buyer.phone}</p>
+          <div className="mt-4 md:mt-0">
+            <p className="text-gray-500 text-sm">{invoiceData.date}</p>
           </div>
         </div>
-        
-        <table className="w-full mb-6">
-          <thead className="bg-teal-600 text-white">
-            <tr>
-              <th className="p-2 text-left">Product</th>
-              <th className="p-2 text-right">Qty</th>
-              <th className="p-2 text-right">Price</th>
-              <th className="p-2 text-right">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {invoiceData.items.map((item, index) => (
-              <tr key={index} className={index % 2 === 0 ? 'bg-gray-100' : ''}>
-                <td className="p-2">{item.name}</td>
-                <td className="p-2 text-right">{item.quantity}</td>
-                <td className="p-2 text-right">${item.price.toFixed(2)}</td>
-                <td className="p-2 text-right">${item.total.toFixed(2)}</td>
+
+        {/* Seller/Buyer Info */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+          <div className="bg-gray-50 p-5 rounded-lg">
+            <h3 className="text-lg font-semibold text-teal-600 border-b-2 border-teal-600 pb-2 inline-block">
+              SELLER DETAILS
+            </h3>
+            <div className="mt-4 space-y-2 text-sm">
+              <p><strong>Name:</strong> {invoiceData.seller.name}</p>
+              <p><strong>Email:</strong> {invoiceData.seller.email}</p>
+              <p><strong>Phone:</strong> {invoiceData.seller.phoneNo}</p>
+              <p><strong>Address:</strong> {invoiceData.seller.address}</p>
+            </div>
+          </div>
+          
+          <div className="bg-gray-50 p-5 rounded-lg">
+            <h3 className="text-lg font-semibold text-teal-600 border-b-2 border-teal-600 pb-2 inline-block">
+              BUYER DETAILS
+            </h3>
+            <div className="mt-4 space-y-2 text-sm">
+              <p><strong>Name:</strong> {invoiceData.buyer.name}</p>
+              <p><strong>Phone:</strong> {invoiceData.buyer.phone}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Items Table */}
+        <div className="mb-10 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-teal-600 text-white">
+                <th className="text-left py-3 px-4">Item</th>
+                <th className="text-right py-3 px-4">Qty</th>
+                <th className="text-right py-3 px-4">Price</th>
+                <th className="text-right py-3 px-4">Amount</th>
               </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr className="border-t-2 border-teal-600">
-              <td colSpan="3" className="p-2 text-right font-semibold">Subtotal:</td>
-              <td className="p-2 text-right font-semibold">${invoiceData.subtotal.toFixed(2)}</td>
-            </tr>
-          </tfoot>
-        </table>
-        
+            </thead>
+            <tbody>
+              {invoiceData.items.map((item, index) => (
+                <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+                  <td className="py-3 px-4 border-b border-gray-200">{item.name}</td>
+                  <td className="py-3 px-4 text-right border-b border-gray-200">{item.quantity}</td>
+                  <td className="py-3 px-4 text-right border-b border-gray-200">₹{item.price.toFixed(2)}</td>
+                  <td className="py-3 px-4 text-right border-b border-gray-200">₹{item.total.toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Total */}
+        <div className="flex justify-end mb-8">
+          <div className="w-full md:w-1/3">
+            <div className="bg-gray-50 p-4 rounded-lg text-sm">
+              <div className="flex justify-between font-semibold">
+                <span>Subtotal</span>
+                <span>₹{invoiceData.subtotal.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Note */}
         {invoiceData.note && (
-          <div className="mb-6">
-            <p className="font-semibold">Note:</p>
-            <p>{invoiceData.note}</p>
+          <div className="bg-teal-50 border-l-4 border-teal-600 p-4 rounded-r-lg mb-10 text-sm">
+            <p className="font-semibold text-teal-600 mb-2">Note</p>
+            <p className="text-gray-700">{invoiceData.note}</p>
           </div>
         )}
-        
-        <div className="flex justify-between">
-          <button
-            onClick={onNewSale}
-            className="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-md transition duration-300"
-          >
-            New Sale
-          </button>
-          <button
-            onClick={onDownload}
-            className="bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded-md transition duration-300"
-          >
-            Download Invoice
-          </button>
+
+        {/* Footer */}
+        <div className="pt-6 mt-8 border-t border-gray-200 text-center text-gray-500 text-sm">
+          <p className="mb-2">Thank you for your business!</p>
+          <p>Please contact us if you have any questions</p>
         </div>
       </div>
     </div>
   );
 };
 
+// const generateInvoiceHTML = (invoiceData) => {
+//   return `
+//     <div style="
+//       background-color: white;
+//       padding: 40px;
+//       border-radius: 12px;
+//       font-family: 'Arial', sans-serif;
+//       color: #333;
+//       width: 800px;
+//       margin: 0 auto;
+//       line-height: 1.5;
+//     ">
+//       <!-- Header -->
+//       <div style="
+//         display: flex;
+//         justify-content: space-between;
+//         align-items: center;
+//         margin-bottom: 30px;
+//         padding-bottom: 20px;
+//         border-bottom: 1px solid #e2e8f0;
+//       ">
+//         <div>
+//           <h1 style="
+//             font-size: 28px;
+//             font-weight: 700;
+//             color: #0d9488;
+//             margin: 0;
+//           ">
+//             INVOICE
+//           </h1>
+//           <p style="color: #64748b; margin: 5px 0 0; font-size: 14px;">#${invoiceData.invoiceNumber}</p>
+//         </div>
+//         <div style="text-align: right;">
+//           <p style="color: #64748b; margin: 8px 0 0; font-size: 14px;">${invoiceData.date}</p>
+//         </div>
+//       </div>
 
+//       <!-- Seller/Buyer Info -->
+//       <div style="
+//         display: grid;
+//         grid-template-columns: 1fr 1fr;
+//         gap: 30px;
+//         margin-bottom: 40px;
+//       ">
+//         <div>
+//           <h3 style="
+//             font-size: 16px;
+//             font-weight: 600;
+//             color: #0d9488;
+//             margin-bottom: 12px;
+//             border-bottom: 2px solid #0d9488;
+//             padding-bottom: 6px;
+//             display: inline-block;
+//           ">
+//             SELLER DETAILS
+//           </h3>
+//           <div style="margin-top: 12px; font-size: 14px;">
+//             <p style="margin: 8px 0;"><strong>Name:</strong> ${invoiceData.seller.name}</p>
+//             <p style="margin: 8px 0;"><strong>Email:</strong> ${invoiceData.seller.email}</p>
+//             <p style="margin: 8px 0;"><strong>Phone:</strong> ${invoiceData.seller.phoneNo}</p>
+//             <p style="margin: 8px 0;"><strong>Address:</strong> ${invoiceData.seller.address}</p>
+//           </div>
+//         </div>
+        
+//         <div>
+//           <h3 style="
+//             font-size: 16px;
+//             font-weight: 600;
+//             color: #0d9488;
+//             margin-bottom: 12px;
+//             border-bottom: 2px solid #0d9488;
+//             padding-bottom: 6px;
+//             display: inline-block;
+//           ">
+//             BUYER DETAILS
+//           </h3>
+//           <div style="margin-top: 12px; font-size: 14px;">
+//             <p style="margin: 8px 0;"><strong>Name:</strong> ${invoiceData.buyer.name}</p>
+//             <p style="margin: 8px 0;"><strong>Phone:</strong> ${invoiceData.buyer.phone}</p>
+//           </div>
+//         </div>
+//       </div>
 
+//       <!-- Items Table -->
+//       <table style="
+//         width: 100%;
+//         border-collapse: collapse;
+//         margin-bottom: 30px;
+//         font-size: 14px;
+//       ">
+//         <thead>
+//           <tr style="
+//             background-color: #0d9488;
+//             color: white;
+//             font-weight: 600;
+//           ">
+//             <th style="
+//               padding: 12px 16px;
+//               text-align: left;
+//             ">Item</th>
+//             <th style="padding: 12px 16px; text-align: right;">Qty</th>
+//             <th style="padding: 12px 16px; text-align: right;">Price</th>
+//             <th style="padding: 12px 16px; text-align: right;">Amount</th>
+//           </tr>
+//         </thead>
+//         <tbody>
+//           ${invoiceData.items.map((item, index) => `
+//             <tr style="${index % 2 === 0 ? 'background-color: #f8fafc;' : ''}">
+//               <td style="
+//                 padding: 12px 16px;
+//                 border-bottom: 1px solid #e2e8f0;
+//               ">${item.name}</td>
+//               <td style="
+//                 padding: 12px 16px;
+//                 text-align: right;
+//                 border-bottom: 1px solid #e2e8f0;
+//               ">${item.quantity}</td>
+//               <td style="
+//                 padding: 12px 16px;
+//                 text-align: right;
+//                 border-bottom: 1px solid #e2e8f0;
+//               ">₹${item.price.toFixed(2)}</td>
+//               <td style="
+//                 padding: 12px 16px;
+//                 text-align: right;
+//                 border-bottom: 1px solid #e2e8f0;
+//               ">₹${item.total.toFixed(2)}</td>
+//             </tr>
+//           `).join('')}
+//         </tbody>
+//       </table>
 
+//       <!-- Total -->
+//       <div style="
+//         display: flex;
+//         justify-content: flex-end;
+//         margin-bottom: 30px;
+//       ">
+//         <div style="width: 300px;">
+//           <div style="
+//             display: flex;
+//             justify-content: space-between;
+//             padding: 12px 16px;
+//             background-color: #f8fafc;
+//             border-radius: 6px;
+//             font-weight: 600;
+//             font-size: 14px;
+//           ">
+//             <span>Subtotal</span>
+//             <span>₹${invoiceData.subtotal.toFixed(2)}</span>
+//           </div>
+//         </div>
+//       </div>
 
+//       <!-- Note -->
+//       ${invoiceData.note ? `
+//         <div style="
+//           margin-bottom: 30px;
+//           padding: 16px;
+//           background-color: #f0fdfa;
+//           border-left: 4px solid #0d9488;
+//           border-radius: 0 6px 6px 0;
+//           font-size: 14px;
+//         ">
+//           <p style="
+//             font-weight: 600;
+//             color: #0d9488;
+//             margin-bottom: 8px;
+//           ">Note</p>
+//           <p style="margin: 0; color: #334155;">${invoiceData.note}</p>
+//         </div>
+//       ` : ''}
+
+//       <!-- Footer -->
+//       <div style="
+//         text-align: center;
+//         padding-top: 30px;
+//         margin-top: 40px;
+//         border-top: 1px solid #e2e8f0;
+//         color: #64748b;
+//         font-size: 14px;
+//       ">
+//         <p style="margin: 0 0 8px;">Thank you for your business!</p>
+//         <p style="margin: 0;">Please contact us if you have any questions</p>
+//       </div>
+//     </div>
+//   `;
+// };
+
+// export const downloadInvoicePDF = (invoiceData, template) => {
+//   if (!invoiceData) return;
+
+//   const element = document.createElement('div');
+//   element.style.width = '800px';
+//   element.style.margin = '0 auto';
+  
+//   element.innerHTML = generateInvoiceHTML(invoiceData);
+
+//   document.body.appendChild(element);
+
+//   const opt = {
+//     margin: 10,
+//     filename: `invoice_${invoiceData.invoiceNumber}.pdf`,
+//     image: { 
+//       type: 'jpeg', 
+//       quality: 1 // Maximum quality
+//     },
+//     html2canvas: { 
+//       scale: 3, // Higher scale for better quality
+//       useCORS: true,
+//       letterRendering: true,
+//       allowTaint: true,
+//       logging: false,
+//       backgroundColor: '#FFFFFF',
+//       width: 800 // Match the element width
+//     },
+//     jsPDF: { 
+//       unit: 'mm', 
+//       format: 'a4', 
+//       orientation: 'portrait',
+//       compress: false // Disable compression for better quality
+//     }
+//   };
+
+//   // Use a timeout to ensure the element is properly rendered
+//   setTimeout(() => {
+//     html2pdf()
+//       .set(opt)
+//       .from(element)
+//       .save()
+//       .then(() => {
+//         document.body.removeChild(element);
+//       })
+//       .catch(error => {
+//         console.error('Error generating PDF:', error);
+//         document.body.removeChild(element);
+//       });
+//   }, 500);
+// };
+
+// export const InvoicePreview = ({ invoiceData, template }) => {
+//   if (!invoiceData) return null;
+
+//   return (
+//     <div className="relative bg-white rounded-xl overflow-hidden p-8 max-w-4xl mx-auto">
+//       {/* Background image with overlay */}
+//       {template && (
+//         <div className="absolute inset-0 z-0 opacity-10">
+//           <img 
+//             src={template} 
+//             alt="Invoice background" 
+//             className="w-full h-full object-cover"
+//           />
+//         </div>
+//       )}
+      
+//       {/* Content */}
+//       <div className="relative z-10">
+//         {/* Header */}
+//         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-6 border-b border-gray-200">
+//           <div>
+//             <h1 className="text-3xl font-bold text-teal-600">INVOICE</h1>
+//             <p className="text-gray-500 text-sm">#{invoiceData.invoiceNumber}</p>
+//           </div>
+//           <div className="mt-4 md:mt-0">
+//             <p className="text-gray-500 text-sm">{invoiceData.date}</p>
+//           </div>
+//         </div>
+
+//         {/* Seller/Buyer Info */}
+//         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+//           <div className="bg-gray-50 p-5 rounded-lg">
+//             <h3 className="text-lg font-semibold text-teal-600 border-b-2 border-teal-600 pb-2 inline-block">
+//               SELLER DETAILS
+//             </h3>
+//             <div className="mt-4 space-y-2 text-sm">
+//               <p><strong>Name:</strong> {invoiceData.seller.name}</p>
+//               <p><strong>Email:</strong> {invoiceData.seller.email}</p>
+//               <p><strong>Phone:</strong> {invoiceData.seller.phoneNo}</p>
+//               <p><strong>Address:</strong> {invoiceData.seller.address}</p>
+//             </div>
+//           </div>
+          
+//           <div className="bg-gray-50 p-5 rounded-lg">
+//             <h3 className="text-lg font-semibold text-teal-600 border-b-2 border-teal-600 pb-2 inline-block">
+//               BUYER DETAILS
+//             </h3>
+//             <div className="mt-4 space-y-2 text-sm">
+//               <p><strong>Name:</strong> {invoiceData.buyer.name}</p>
+//               <p><strong>Phone:</strong> {invoiceData.buyer.phone}</p>
+//             </div>
+//           </div>
+//         </div>
+
+//         {/* Items Table */}
+//         <div className="mb-10 overflow-x-auto">
+//           <table className="w-full text-sm">
+//             <thead>
+//               <tr className="bg-teal-600 text-white">
+//                 <th className="text-left py-3 px-4">Item</th>
+//                 <th className="text-right py-3 px-4">Qty</th>
+//                 <th className="text-right py-3 px-4">Price</th>
+//                 <th className="text-right py-3 px-4">Amount</th>
+//               </tr>
+//             </thead>
+//             <tbody>
+//               {invoiceData.items.map((item, index) => (
+//                 <tr key={index} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+//                   <td className="py-3 px-4 border-b border-gray-200">{item.name}</td>
+//                   <td className="py-3 px-4 text-right border-b border-gray-200">{item.quantity}</td>
+//                   <td className="py-3 px-4 text-right border-b border-gray-200">₹{item.price.toFixed(2)}</td>
+//                   <td className="py-3 px-4 text-right border-b border-gray-200">₹{item.total.toFixed(2)}</td>
+//                 </tr>
+//               ))}
+//             </tbody>
+//           </table>
+//         </div>
+
+//         {/* Total */}
+//         <div className="flex justify-end mb-8">
+//           <div className="w-full md:w-1/3">
+//             <div className="bg-gray-50 p-4 rounded-lg text-sm">
+//               <div className="flex justify-between font-semibold">
+//                 <span>Subtotal</span>
+//                 <span>₹{invoiceData.subtotal.toFixed(2)}</span>
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+
+//         {/* Note */}
+//         {invoiceData.note && (
+//           <div className="bg-teal-50 border-l-4 border-teal-600 p-4 rounded-r-lg mb-10 text-sm">
+//             <p className="font-semibold text-teal-600 mb-2">Note</p>
+//             <p className="text-gray-700">{invoiceData.note}</p>
+//           </div>
+//         )}
+
+//         {/* Footer */}
+//         <div className="pt-6 mt-8 border-t border-gray-200 text-center text-gray-500 text-sm">
+//           <p className="mb-2">Thank you for your business!</p>
+//           <p>Please contact us if you have any questions</p>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };

@@ -217,7 +217,7 @@ const Purchase = () => {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.4 }}
                 >
-                  <label className="block mb-2 text-gray-700 font-medium flex items-center gap-2">
+                  <label className=" mb-2 text-gray-700 font-medium flex items-center gap-2">
                     <FiClipboard /> Note
                   </label>
                   <textarea
