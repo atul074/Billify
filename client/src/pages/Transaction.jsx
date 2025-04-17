@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { FiFilter, FiDollarSign, FiCalendar, FiType, FiX, FiChevronDown } from "react-icons/fi";
 import Layout from "./Layout";
 import { useNavigate } from "react-router-dom";
 import Mycontext from "../context/Mycontext";
@@ -7,6 +9,7 @@ const Transaction = () => {
   const [transactions, setTransactions] = useState([]);
   const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [message, setMessage] = useState("");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const [typeFilter, setTypeFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("all");
@@ -21,7 +24,6 @@ const Transaction = () => {
     const getTransactions = async () => {
       try {
         const transactionData = await getAllTransactions();
-        console.log(transactionData.transactions);
         
         if (transactionData.status === 200) {
           setTransactions(transactionData.transactions);
@@ -81,59 +83,180 @@ const Transaction = () => {
 
   return (
     <Layout>
-      {message && (
-        <div className="bg-red-100 text-red-800 p-3 rounded-md mb-4 text-center font-medium">
-          {message}
-        </div>
-      )}
+      <AnimatePresence>
+        {message && (
+          <motion.div 
+            className="bg-red-100 text-red-800 p-3 rounded-md mb-4 text-center font-medium shadow-md"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            {message}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="p-4 sm:p-6 space-y-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Transactions</h1>
+        <motion.h1 
+          className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          Transactions
+        </motion.h1>
 
-        {/* Filter UI */}
-        <div className="flex flex-wrap gap-4 items-center">
-          <select
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value)}
-            className="border px-3 py-2 rounded"
+        {/* Fixed Filter Button */}
+        <div className="fixed right-6 top-24 z-20">
+          <motion.button
+            onClick={() => setIsFilterOpen(!isFilterOpen)}
+            className="   bg-gradient-to-r from-cyan-500 to-teal-500 flex items-center gap-2 px-4 py-2 text-white rounded-lg shadow-xl hover:shadow-2xl transition-all"
+            style={{
+              //background: 'linear-gradient(135deg, teal-600, blue-500)',
+              boxShadow: '0 4px 6px rgba(1, 72, 113, 0.3)'
+            }}
+          
+            whileHover={{ 
+              scale: 1.05,
+              boxShadow: '0 6px 8px rgba(1, 72, 113, 0.4)'
+            }}
+            whileTap={{ scale: 0.95 }}
           >
-            <option value="">All Types</option>
-            <option value="SALE">Sale</option>
-            <option value="PURCHASE">Purchase</option>
-          </select>
-
-          <select
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
-            className="border px-3 py-2 rounded"
-          >
-            <option value="all">All Time</option>
-            <option value="7">Last 7 Days</option>
-            <option value="30">Last 30 Days</option>
-          </select>
-
-          <input
-            type="number"
-            placeholder="Min Price"
-            value={minPrice}
-            onChange={(e) => setMinPrice(e.target.value)}
-            className="border px-3 py-2 rounded w-28"
-          />
-
-          <input
-            type="number"
-            placeholder="Max Price"
-            value={maxPrice}
-            onChange={(e) => setMaxPrice(e.target.value)}
-            className="border px-3 py-2 rounded w-28"
-          />
+            {isFilterOpen ? (
+              <FiX size={18} className="text-white" />
+            ) : (
+              <FiFilter size={18} className="text-white" />
+            )}
+            <span className="font-medium">Filters</span>
+            <motion.span
+              animate={{ rotate: isFilterOpen ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <FiChevronDown size={18} className="text-white" />
+            </motion.span>
+          </motion.button>
         </div>
 
-        {/* Table with animation on render */}
-        <div className="overflow-x-auto transition-all duration-500 ease-in-out transform">
+        {/* Animated Filter Dropdown */}
+        <AnimatePresence>
+          {isFilterOpen && (
+            <motion.div 
+              className="fixed right-6 top-40 z-20 w-72 bg-white p-4 rounded-xl shadow-2xl border border-gray-100"
+              initial={{ opacity: 0, y: -20, scale: 0.95 }}
+              animate={{ 
+                opacity: 1, 
+                y: 0, 
+                scale: 1,
+                transition: { 
+                  type: "spring",
+                  damping: 20,
+                  stiffness: 300
+                }
+              }}
+              exit={{ 
+                opacity: 0, 
+                y: -20,
+                transition: { duration: 0.2 }
+              }}
+              style={{
+                boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              <motion.div 
+                className="space-y-4"
+                initial={{ opacity: 0 }}
+                animate={{ 
+                  opacity: 1,
+                  transition: { delay: 0.1 }
+                }}
+              >
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-gray-700 font-medium">
+                    <FiType className="text-teal-600" /> Transaction Type
+                  </label>
+                  <motion.select
+                    value={typeFilter}
+                    onChange={(e) => setTypeFilter(e.target.value)}
+                    className="w-full border px-3 py-2 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent shadow-sm"
+                    whileFocus={{ 
+                      boxShadow: '0 0 0 2px rgba(5, 150, 105, 0.3)',
+                      scale: 1.01
+                    }}
+                  >
+                    <option value="">All Types</option>
+                    <option value="SALE">Sale</option>
+                    <option value="PURCHASE">Purchase</option>
+                  </motion.select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-gray-700 font-medium">
+                    <FiCalendar className="text-teal-600" /> Date Range
+                  </label>
+                  <motion.select
+                    value={dateFilter}
+                    onChange={(e) => setDateFilter(e.target.value)}
+                    className="w-full border px-3 py-2 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent shadow-sm"
+                    whileFocus={{ 
+                      boxShadow: '0 0 0 2px rgba(5, 150, 105, 0.3)',
+                      scale: 1.01
+                    }}
+                  >
+                    <option value="all">All Time</option>
+                    <option value="7">Last 7 Days</option>
+                    <option value="30">Last 30 Days</option>
+                  </motion.select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-gray-700 font-medium">
+                    <FiDollarSign className="text-teal-600" /> Min Price
+                  </label>
+                  <motion.input
+                    type="number"
+                    placeholder="Enter min price"
+                    value={minPrice}
+                    onChange={(e) => setMinPrice(e.target.value)}
+                    className="w-full border px-3 py-2 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent shadow-sm"
+                    whileFocus={{ 
+                      boxShadow: '0 0 0 2px rgba(5, 150, 105, 0.3)',
+                      scale: 1.01
+                    }}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-gray-700 font-medium">
+                    <FiDollarSign className="text-teal-600" /> Max Price
+                  </label>
+                  <motion.input
+                    type="number"
+                    placeholder="Enter max price"
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(e.target.value)}
+                    className="w-full border px-3 py-2 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent shadow-sm"
+                    whileFocus={{ 
+                      boxShadow: '0 0 0 2px rgba(5, 150, 105, 0.3)',
+                      scale: 1.01
+                    }}
+                  />
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Table */}
+        <motion.div 
+          className="overflow-x-auto rounded-xl shadow-lg"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
           {filteredTransactions.length > 0 ? (
-            <table className="min-w-full bg-white text-sm sm:text-base">
-              <thead className="bg-gray-100 text-gray-700 font-semibold">
+            <table className="min-w-full bg-white">
+              <thead className="bg-gradient-to-r from-teal-600 to-cyan-600 text-white shadow-md">
                 <tr>
                   <th className="px-6 py-4 text-left">TYPE</th>
                   <th className="px-6 py-4 text-left">TOTAL PRICE</th>
@@ -144,36 +267,74 @@ const Transaction = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredTransactions.map((transaction, index) => (
-                  <tr
-                    key={transaction.id}
-                    className={`${
-                      index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                    } hover:bg-teal-50 transition duration-200`}
-                  >
-                    <td className="px-6 py-4 capitalize">{transaction.transactionType}</td>
-                    <td className="px-6 py-4">₹{transaction.totalPrice}</td>
-                    <td className="px-6 py-4">{transaction.totalProducts}</td>
-                    <td className="px-6 py-4">{transaction.note}</td>
-                    <td className="px-6 py-4">
-                      {new Date(transaction.createdAt).toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4">
-                      <button
-                        onClick={() => navigateToTransactionDetailsPage(transaction.id)}
-                        className="bg-teal-600 hover:bg-teal-800 text-white px-4 py-2 rounded font-semibold transition duration-200"
-                      >
-                        View Details
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                <AnimatePresence>
+                  {filteredTransactions.map((transaction, index) => (
+                    <motion.tr
+                      key={transaction.id}
+                      className={`${
+                        index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                      } hover:bg-teal-50 transition-colors`}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ 
+                        opacity: 1, 
+                        y: 0,
+                        transition: { 
+                          duration: 0.3, 
+                          delay: index * 0.05,
+                          type: "spring",
+                          stiffness: 100
+                        }
+                      }}
+                    >
+                      <td className="px-6 py-4 capitalize">
+                        <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold shadow-sm ${
+                          transaction.transactionType === "SALE" 
+                            ? "bg-green-100 text-green-800" 
+                            : "bg-blue-100 text-blue-800"
+                        }`}>
+                          {transaction.transactionType}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 font-medium">
+                        <span className="bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent">
+                          ₹{transaction.totalPrice}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">{transaction.totalProducts}</td>
+                      <td className="px-6 py-4 text-gray-600">{transaction.note || "-"}</td>
+                      <td className="px-6 py-4">
+                        {new Date(transaction.createdAt).toLocaleString()}
+                      </td>
+                      <td className="px-6 py-4">
+                        <motion.button
+                          onClick={() => navigateToTransactionDetailsPage(transaction.id)}
+                          className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white px-4 py-2 rounded-lg font-semibold shadow-md"
+                          whileHover={{ 
+                            scale: 1.05,
+                            boxShadow: '0 4px 8px rgba(5, 150, 105, 0.3)'
+                          }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          View Details
+                        </motion.button>
+                      </td>
+                    </motion.tr>
+                  ))}
+                </AnimatePresence>
               </tbody>
             </table>
           ) : (
-            <p className="text-gray-600 mt-4">No transactions found.</p>
+            <motion.div 
+              className="bg-white p-8 text-center rounded-xl shadow-lg"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <h3 className="text-xl font-medium text-gray-700 mb-2">No transactions found</h3>
+              <p className="text-gray-500">Try adjusting your filters</p>
+            </motion.div>
           )}
-        </div>
+        </motion.div>
       </div>
     </Layout>
   );
