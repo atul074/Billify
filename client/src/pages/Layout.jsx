@@ -5,6 +5,8 @@ import { FiHome, FiShoppingCart, FiPackage, FiDollarSign, FiFileText, FiSettings
 import Mycontext from "../context/Mycontext";
 import logo from "../assets/logo.png"
 
+import NotificationDropdown from "./NotificationDropdown";
+
 const SidebarItem = ({ to, icon, text, isOpen }) => {
   const Icon = icon;
   
@@ -272,6 +274,8 @@ const Header = ({ isSidebarOpen, toggleSidebar }) => {
           </h2>
         </div>
         <div className="flex items-center space-x-4 mr-4">
+
+        <NotificationDropdown />
           <motion.button
             onClick={logout}
             className="flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:shadow-lg transition-all"

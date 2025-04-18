@@ -1,7 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import Mycontext from './Mycontext';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
+
 function Mystate({children}) {
    // const navigate= useNavigate();
     const [loading, setLoading] = useState(false);
@@ -11,7 +14,18 @@ function Mystate({children}) {
     const [allProducts, setAllProducts] = useState(null); // cached data
     const [allTemplates, setAllTemplates] = useState(null);
 
+    //notification ka part
+    const [notifications, setNotifications] = useState([]);
+    const [unreadCount, setUnreadCount] = useState(0);
+    const stompClient = useRef(null);
     
+
+    const getHeader=()=> {
+      return {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+      }
+  };
 
     const registerUser = async (credentials) =>  {
         //console.log("aa raha");
@@ -266,12 +280,127 @@ const getAllTemplates = async () => {
     }
   };
 
-  const getHeader=()=> {
-    return {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json"
+
+  //notification ka code 
+
+
+  useEffect(() => {
+    if (isAuthenticated && token) {
+      // Initialize WebSocket connection
+      const socket = new SockJS('http://localhost:8087/ws');
+      stompClient.current = new Client({
+        webSocketFactory: () => socket,
+        reconnectDelay: 5000,
+        heartbeatIncoming: 4000,
+        heartbeatOutgoing: 4000,
+        onConnect: () => {
+          console.log('WebSocket connected');
+          
+          // Subscribe to user-specific notification queues
+          stompClient.current.subscribe(
+            `/user/queue/notifications`,
+            (message) => {
+              const notification = JSON.parse(message.body);
+              setNotifications(prev => [notification, ...prev]);
+              setUnreadCount(prev => prev + 1);
+            }
+          );
+  
+          stompClient.current.subscribe(
+            `/user/queue/notifications-update`,
+            (message) => {
+              const update = JSON.parse(message.body);
+              if (update.type === 'all_read') {
+                setNotifications(prev => 
+                  prev.map(n => ({ ...n, readStatus: true }))
+                );
+                setUnreadCount(0);
+              }
+            }
+          );
+  
+          // Fetch initial notifications
+          fetchNotifications();
+        },
+        onStompError: (frame) => {
+          console.error('WebSocket error:', frame);
+        }
+      });
+  
+      stompClient.current.activate();
+  
+      return () => {
+        if (stompClient.current) {
+          stompClient.current.deactivate();
+        }
+      };
     }
-};
+  }, [isAuthenticated, token]);
+  
+  // Add these notification functions
+  const fetchNotifications = async () => {
+    try {
+      const res = await axios.get('http://localhost:8087/api/notifications', {
+        headers: getHeader()
+      });
+      setNotifications(res.data.notifications);
+      
+      // Calculate initial unread count
+      const unread = res.data.notifications.filter(n => !n.readStatus).length;
+      setUnreadCount(unread);
+      return res.data.notifications;
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+      throw error;
+    }
+  };
+  
+  const fetchUnreadCount = async () => {
+    try {
+      const res = await axios.get('http://localhost:8087/api/notifications/unread-count', {
+        headers: getHeader()
+      });
+      setUnreadCount(res.data.count);
+      return res.data.count;
+    } catch (error) {
+      console.error("Error fetching unread count:", error);
+      throw error;
+    }
+  };
+  
+  const markNotificationAsRead = async (id) => {
+    try {
+      await axios.post(`http://localhost:8087/api/notifications/${id}/read`, {}, {
+        headers: getHeader()
+      });
+      // Optimistic update
+      setNotifications(prev => 
+        prev.map(n => n.id === id ? { ...n, readStatus: true } : n)
+      );
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+      throw error;
+    }
+  };
+  
+  const markAllNotificationsAsRead = async () => {
+    try {
+      await axios.post('http://localhost:8087/api/notifications/mark-all-read', {}, {
+        headers: getHeader()
+      });
+      // Optimistic update
+      setNotifications(prev => 
+        prev.map(n => ({ ...n, readStatus: true }))
+      );
+      setUnreadCount(0);
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error);
+      throw error;
+    }
+  };
+  
+ 
   
 
 
@@ -285,6 +414,13 @@ const getAllTemplates = async () => {
             purchaseProduct,sellProduct,
             getAllTransactions, getTransactionById,
             getAllTemplates, uploadTemplate, deleteTemplate, renameTemplate, setDefaultTemplate,  getDefaultTemplate,
+
+            notifications,
+            unreadCount,
+            fetchNotifications,
+            fetchUnreadCount,
+            markNotificationAsRead,
+            markAllNotificationsAsRead,
          
 
         }}>
