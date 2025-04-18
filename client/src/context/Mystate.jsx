@@ -283,55 +283,84 @@ const getAllTemplates = async () => {
 
   //notification ka code 
 
-
   useEffect(() => {
     if (isAuthenticated && token) {
-      // Initialize WebSocket connection
+      // Initialize WebSocket connection with proper headers
       const socket = new SockJS('http://localhost:8087/ws');
       stompClient.current = new Client({
         webSocketFactory: () => socket,
+        connectHeaders: {
+          Authorization: `Bearer ${token}` // Add auth token to headers
+        },
         reconnectDelay: 5000,
         heartbeatIncoming: 4000,
         heartbeatOutgoing: 4000,
+        debug: (str) => console.debug('STOMP:', str), // Better debugging
         onConnect: () => {
           console.log('WebSocket connected');
           
-          // Subscribe to user-specific notification queues
-          stompClient.current.subscribe(
-            `/user/queue/notifications`,
-            (message) => {
-              const notification = JSON.parse(message.body);
-              setNotifications(prev => [notification, ...prev]);
-              setUnreadCount(prev => prev + 1);
-            }
-          );
+          // Subscribe with proper error handling
+          try {
+            stompClient.current.subscribe(
+              `/user/queue/notifications`,
+              (message) => {
+                try {
+                  const notification = JSON.parse(message.body);
+                  setNotifications(prev => [notification, ...prev]);
+                  setUnreadCount(prev => prev + 1);
+                } catch (parseError) {
+                  console.error('Error parsing notification:', parseError);
+                }
+              },
+              { id: 'notifications-sub' } // Add subscription ID
+            );
   
-          stompClient.current.subscribe(
-            `/user/queue/notifications-update`,
-            (message) => {
-              const update = JSON.parse(message.body);
-              if (update.type === 'all_read') {
-                setNotifications(prev => 
-                  prev.map(n => ({ ...n, readStatus: true }))
-                );
-                setUnreadCount(0);
-              }
-            }
-          );
+            stompClient.current.subscribe(
+              `/user/queue/notifications-update`,
+              (message) => {
+                try {
+                  const update = JSON.parse(message.body);
+                  if (update.type === 'all_read') {
+                    setNotifications(prev => 
+                      prev.map(n => ({ ...n, readStatus: true }))
+                    );
+                    setUnreadCount(0);
+                  }
+                } catch (parseError) {
+                  console.error('Error parsing update:', parseError);
+                }
+              },
+              { id: 'updates-sub' }
+            );
+          } catch (subError) {
+            console.error('Subscription error:', subError);
+          }
   
-          // Fetch initial notifications
-          fetchNotifications();
+          fetchNotifications().catch(err => 
+            console.error('Error fetching notifications:', err)
+          );
         },
         onStompError: (frame) => {
-          console.error('WebSocket error:', frame);
+          console.error('STOMP protocol error:', frame.headers.message);
+        },
+        onWebSocketError: (event) => {
+          console.error('WebSocket error:', event);
+        },
+        onDisconnect: () => {
+          console.log('WebSocket disconnected');
         }
       });
   
       stompClient.current.activate();
   
       return () => {
-        if (stompClient.current) {
-          stompClient.current.deactivate();
+        if (stompClient.current?.active) {
+          // Properly unsubscribe before deactivating
+          stompClient.current.unsubscribe('notifications-sub');
+          stompClient.current.unsubscribe('updates-sub');
+          stompClient.current.deactivate().then(() => {
+            console.log('STOMP client deactivated');
+          });
         }
       };
     }

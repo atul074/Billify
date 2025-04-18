@@ -1,6 +1,7 @@
 package com.example.server.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -43,6 +44,7 @@ public class Users {
     private List<Transaction> transactions;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Notification> notifications = new ArrayList<>();
 
     private LocalDateTime created_at;
