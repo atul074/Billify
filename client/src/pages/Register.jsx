@@ -108,7 +108,7 @@ function Register() {
               transition={{ delay: 0.2 }}
               className="text-center mb-8"
             >
-              <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-pink-600">
+              <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-teal-600">
                 Create Account
               </h2>
               <p className="text-gray-600 mt-2">Join us today</p>
@@ -157,7 +157,7 @@ function Register() {
               >
                 <button
                   type="submit"
-                  className="w-full py-3 px-4 bg-gradient-to-r from-indigo-600 to-pink-600 hover:from-indigo-700 hover:to-pink-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
+                  className="w-full py-3 px-4 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-700 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
                 >
                   Register
                 </button>
