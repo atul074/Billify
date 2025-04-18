@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 @Entity
 @AllArgsConstructor
@@ -40,6 +41,9 @@ public class Users {
 
     @OneToMany(mappedBy = "user")
     private List<Transaction> transactions;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Notification> notifications = new ArrayList<>();
 
     private LocalDateTime created_at;
 

@@ -19,7 +19,7 @@ public class UserController {
     @GetMapping("/users")
     @ResponseBody
     public List<UserDTO> getAllUsers(){
-        return userService.getAllUsers();
+        return userService.getAllUsersDTO();
     }
 
     @GetMapping("/transactions/{userId}")

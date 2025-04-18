@@ -1,0 +1,49 @@
+// src/main/java/com/example/server/service/NotificationService.java
+package com.example.server.service;
+
+import com.example.server.model.Notification;
+import com.example.server.model.Users;
+import com.example.server.repo.NotificationRepo;
+import com.example.server.repo.UserRepo;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class NotificationService {
+    private final NotificationRepo notificationRepository;
+    private final UserRepo userRepository;
+    private final WebSocketService webSocketService;
+
+    public void createNotification(Users user, String message, String type) {
+        Notification notification = new Notification();
+        notification.setUser(user);
+        notification.setMessage(message);
+        notification.setType(type);
+
+        notificationRepository.save(notification);
+
+        // Send real-time update via WebSocket
+        webSocketService.sendNotification(user.getEmail(), notification);
+    }
+
+    @Transactional
+    public List<Notification> getUserNotifications(Users user) {
+        return notificationRepository.findByUserOrderByCreatedAtDesc(user);
+    }
+
+    @Transactional
+    public void markAsRead(Long notificationId) {
+        notificationRepository.findById(notificationId).ifPresent(notification -> {
+            notification.setReadStatus(true);
+            notificationRepository.save(notification);
+        });
+    }
+
+    public Long getUnreadCount(Users user) {
+        return notificationRepository.countByUserAndReadStatusFalse(user);
+    }
+}

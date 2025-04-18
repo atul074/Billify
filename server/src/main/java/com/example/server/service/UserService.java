@@ -17,6 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -75,21 +76,35 @@ public class UserService {
             return Collections.singletonMap("Message","failure");
     }
 
-    public List<UserDTO> getAllUsers() {
+//    public List<UserDTO> getAllUsers() {
+//
+//        List<Users>  allUsers =repo.findAll();
+//        List<UserDTO> allUsersDTO=new ArrayList<>();
+//        for (int i=0;i<allUsers.size();i++){
+//            UserDTO userDTO=new UserDTO();
+//            userDTO.setUsername(allUsers.get(i).getUsername());
+//            userDTO.setEmail(allUsers.get(i).getEmail());
+//            userDTO.setUser_id(allUsers.get(i).getUser_id());
+//            userDTO.setPhoneNo(allUsers.get(i).getPhoneNo());
+//            userDTO.setAddress(allUsers.get(i).getAddress());
+//            allUsersDTO.add(userDTO);
+//        }
+//        return allUsersDTO;
+//    }
 
-        List<Users>  allUsers =repo.findAll();
-        List<UserDTO> allUsersDTO=new ArrayList<>();
-        for (int i=0;i<allUsers.size();i++){
-            UserDTO userDTO=new UserDTO();
-            userDTO.setUsername(allUsers.get(i).getUsername());
-            userDTO.setEmail(allUsers.get(i).getEmail());
-            userDTO.setUser_id(allUsers.get(i).getUser_id());
-            userDTO.setPhoneNo(allUsers.get(i).getPhoneNo());
-            userDTO.setAddress(allUsers.get(i).getAddress());
-            allUsersDTO.add(userDTO);
-        }
-        return allUsersDTO;
+
+    public List<Users> getAllUsers() {
+        return repo.findAll();
     }
+
+    // Keep this method for when you need DTOs
+    public List<UserDTO> getAllUsersDTO() {
+        return repo.findAll().stream()
+                .map(user -> modelMapper.map(user, UserDTO.class))
+                .collect(Collectors.toList());
+    }
+
+
     public Users getUserByEmail(String email)
     {
         Users user=repo.findByEmail(email);

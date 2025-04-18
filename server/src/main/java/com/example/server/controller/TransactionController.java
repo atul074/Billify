@@ -3,11 +3,18 @@ package com.example.server.controller;
 
 import com.example.server.dto.Response;
 import com.example.server.dto.TransactionRequest;
+import com.example.server.model.Users;
+import com.example.server.service.NotificationService;
 import com.example.server.service.TransactionService;
+import com.example.server.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/transactions")
@@ -15,15 +22,54 @@ import org.springframework.web.bind.annotation.*;
 public class TransactionController {
 
     private final TransactionService transactionService;
+    private final NotificationService notificationService;
+    private final UserService userService;
 
     @PostMapping("/purchase")
     public ResponseEntity<Response> purchaseInventory(@RequestBody @Valid TransactionRequest transactionRequest) {
-        return ResponseEntity.ok(transactionService.purchase(transactionRequest));
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Users currentUser = userService.getUserByEmail(auth.getName());
+
+        ResponseEntity<Response> response= ResponseEntity.ok(transactionService.purchase(transactionRequest));
+
+        // Get all Users entities instead of DTOs
+        List<Users> allUsers = userService.getAllUsers();
+
+        // Send notifications to all users
+        allUsers.forEach(user -> {
+            notificationService.createNotification(
+                    user, // Now passing the User entity
+                    "New purchase made by " + currentUser.getUsername(),
+                    "PURCHASE"
+            );
+        });
+
+
+        return response;
+
     }
 
     @PostMapping("/sell")
     public ResponseEntity<Response> makeSale(@RequestBody @Valid TransactionRequest transactionRequest) {
-        return ResponseEntity.ok(transactionService.sell(transactionRequest));
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Users currentUser = userService.getUserByEmail(auth.getName());
+
+
+        ResponseEntity<Response> response = ResponseEntity.ok(transactionService.sell(transactionRequest));
+        // Get all Users entities instead of DTOs
+        List<Users> allUsers = userService.getAllUsers();
+
+        // Send notifications to all users
+        allUsers.forEach(user -> {
+            notificationService.createNotification(
+                    user, // Now passing the User entity
+                    "New sale made by " + currentUser.getUsername(),
+                    "SALE"
+            );
+        });
+
+        return response;
     }
 
     @GetMapping("/all")
