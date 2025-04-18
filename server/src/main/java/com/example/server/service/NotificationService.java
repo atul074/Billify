@@ -1,6 +1,7 @@
 // src/main/java/com/example/server/service/NotificationService.java
 package com.example.server.service;
 
+import com.example.server.dto.NotificationDTO;
 import com.example.server.model.Notification;
 import com.example.server.model.Users;
 import com.example.server.repo.NotificationRepo;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,8 +33,20 @@ public class NotificationService {
     }
 
     @Transactional
-    public List<Notification> getUserNotifications(Users user) {
-        return notificationRepository.findByUserOrderByCreatedAtDesc(user);
+    public List<NotificationDTO> getUserNotifications(Users user) {
+        return notificationRepository.findByUserOrderByCreatedAtDesc(user).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    private NotificationDTO convertToDTO(Notification notification) {
+        return NotificationDTO.builder()
+                .id(notification.getId())
+                .message(notification.getMessage())
+                .type(notification.getType())
+                .readStatus(notification.isReadStatus())
+                .createdAt(notification.getCreatedAt())
+                .build();
     }
 
     @Transactional
@@ -46,4 +60,20 @@ public class NotificationService {
     public Long getUnreadCount(Users user) {
         return notificationRepository.countByUserAndReadStatusFalse(user);
     }
+
+    @Transactional
+    public void markAllAsRead(Users user) {
+        List<Notification> unreadNotifications = notificationRepository.findByUserAndReadStatusFalse(user);
+
+        if (!unreadNotifications.isEmpty()) {
+            unreadNotifications.forEach(notification -> {
+                notification.setReadStatus(true);
+                notificationRepository.save(notification);
+            });
+
+            // Optionally send WebSocket update
+            webSocketService.sendNotificationUpdate(user.getEmail(), "all_read");
+        }
+    }
+
 }

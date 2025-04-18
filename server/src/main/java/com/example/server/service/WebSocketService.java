@@ -5,6 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 public class WebSocketService {
@@ -15,6 +18,18 @@ public class WebSocketService {
                 userEmail,
                 "/queue/notifications",
                 notification
+        );
+    }
+
+    public void sendNotificationUpdate(String userEmail, String updateType) {
+        Map<String, String> payload = new HashMap<>();
+        payload.put("type", updateType);
+        payload.put("message", "All notifications marked as read");
+
+        messagingTemplate.convertAndSendToUser(
+                userEmail,
+                "/queue/notifications-update",
+                payload
         );
     }
 }
