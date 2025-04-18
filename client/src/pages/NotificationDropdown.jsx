@@ -1,63 +1,40 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiBell, FiCheck, FiCheckCircle, FiClock } from 'react-icons/fi';
-
+import { FiBell, FiCheckCircle, FiClock } from 'react-icons/fi';
 import { formatDistanceToNow } from 'date-fns';
 import Mycontext from '../context/Mycontext';
 
 const NotificationDropdown = () => {
-  const context = useContext(Mycontext);
-  const { 
-    notifications, 
-    unreadCount, 
-    fetchNotifications, 
-    markNotificationAsRead, 
-    markAllNotificationsAsRead 
-  } = context;
-  
-  const [isOpen, setIsOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const {
+    notifications,
+    unreadCount,
+    isNotificationPanelOpen,
+    toggleNotificationPanel,
+    markNotificationAsRead,
+    markAllNotificationsAsRead,
+    fetchNotifications
+  } = useContext(Mycontext);
 
+  // Auto-refresh notifications when panel opens
   useEffect(() => {
-    if (isOpen) {
-      loadNotifications();
+    if (isNotificationPanelOpen) {
+      fetchNotifications().catch(err => 
+        console.error("Failed to refresh notifications:", err)
+      );
     }
-  }, [isOpen]);
-
-  const loadNotifications = async () => {
-    setIsLoading(true);
-    try {
-      await fetchNotifications();
-    } catch (error) {
-      console.error("Error loading notifications:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const handleMarkAllAsRead = async () => {
-    try {
-      await markAllNotificationsAsRead();
-    } catch (error) {
-      console.error("Error marking all as read:", error);
-    }
-  };
+  }, [isNotificationPanelOpen, fetchNotifications]);
 
   const handleNotificationClick = async (notification) => {
     if (!notification.readStatus) {
       await markNotificationAsRead(notification.id);
     }
-    // You can add additional click handling here if needed
+    
   };
 
   return (
     <div className="relative">
       <motion.button
-        onClick={toggleDropdown}
+        onClick={toggleNotificationPanel}
         className="p-2 rounded-full relative hover:bg-gray-700/50 transition-colors"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
@@ -76,7 +53,7 @@ const NotificationDropdown = () => {
       </motion.button>
 
       <AnimatePresence>
-        {isOpen && (
+        {isNotificationPanelOpen && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -86,9 +63,9 @@ const NotificationDropdown = () => {
           >
             <div className="p-4 border-b border-gray-700 flex justify-between items-center">
               <h3 className="font-semibold text-white">Notifications</h3>
-              {notifications?.length > 0 && (
+              {notifications.length > 0 && (
                 <button 
-                  onClick={handleMarkAllAsRead}
+                  onClick={markAllNotificationsAsRead}
                   className="text-xs text-teal-400 hover:text-teal-300 flex items-center"
                 >
                   <FiCheckCircle className="mr-1" size={14} />
@@ -97,13 +74,11 @@ const NotificationDropdown = () => {
               )}
             </div>
 
-            {isLoading ? (
-              <div className="p-4 text-center text-gray-400">Loading...</div>
-            ) : notifications?.length === 0 ? (
-              <div className="p-4 text-center text-gray-400">No notifications</div>
-            ) : (
-              <div className="max-h-96 overflow-y-auto">
-                {notifications?.map((notification) => (
+            <div className="max-h-96 overflow-y-auto">
+              {notifications.length === 0 ? (
+                <div className="p-4 text-center text-gray-400">No notifications</div>
+              ) : (
+                notifications.map(notification => (
                   <motion.div
                     key={notification.id}
                     initial={{ opacity: 0 }}
@@ -127,9 +102,9 @@ const NotificationDropdown = () => {
                       )}
                     </div>
                   </motion.div>
-                ))}
-              </div>
-            )}
+                ))
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

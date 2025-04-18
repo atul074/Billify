@@ -13,10 +13,12 @@ function Mystate({children}) {
     const [token, settoken] = useState();
     const [allProducts, setAllProducts] = useState(null); // cached data
     const [allTemplates, setAllTemplates] = useState(null);
+    const [initialAuthCheckDone, setInitialAuthCheckDone] = useState(false);
 
     //notification ka part
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
+    const [isNotificationPanelOpen, setIsNotificationPanelOpen] = useState(false);
     const stompClient = useRef(null);
     
 
@@ -60,6 +62,7 @@ function Mystate({children}) {
             setuserdetail(userDTO);
             settoken(token);
             setisAuthenticated(true);
+            setInitialAuthCheckDone(true);
             setLoading(false);
             return res;
         } catch (error) {
@@ -67,6 +70,21 @@ function Mystate({children}) {
         throw error;
         }
       };
+
+      useEffect(() => {
+        if (initialAuthCheckDone) return;
+      
+        const user = localStorage.getItem("authToken");
+        const userdata1 = localStorage.getItem("userDTO");
+      console.log(user);
+      
+        if (user && userdata1) {
+          setisAuthenticated(true);
+          settoken(user);
+          setuserdetail(JSON.parse(userdata1));
+        }
+        setInitialAuthCheckDone(true);
+      }, [initialAuthCheckDone]);
 
 
     const logoutUser=async()=>{
@@ -283,107 +301,6 @@ const getAllTemplates = async () => {
 
   //notification ka code 
 
-  useEffect(() => {
-    if (isAuthenticated && token) {
-      // Initialize WebSocket connection with proper headers
-      const socket = new SockJS('http://localhost:8087/ws');
-      stompClient.current = new Client({
-        webSocketFactory: () => socket,
-        connectHeaders: {
-          Authorization: `Bearer ${token}` // Add auth token to headers
-        },
-        reconnectDelay: 5000,
-        heartbeatIncoming: 4000,
-        heartbeatOutgoing: 4000,
-        debug: (str) => console.debug('STOMP:', str), // Better debugging
-        onConnect: () => {
-          console.log('WebSocket connected');
-          
-          // Subscribe with proper error handling
-          try {
-            stompClient.current.subscribe(
-              `/user/queue/notifications`,
-              (message) => {
-                try {
-                  const notification = JSON.parse(message.body);
-                  setNotifications(prev => [notification, ...prev]);
-                  setUnreadCount(prev => prev + 1);
-                } catch (parseError) {
-                  console.error('Error parsing notification:', parseError);
-                }
-              },
-              { id: 'notifications-sub' } // Add subscription ID
-            );
-  
-            stompClient.current.subscribe(
-              `/user/queue/notifications-update`,
-              (message) => {
-                try {
-                  const update = JSON.parse(message.body);
-                  if (update.type === 'all_read') {
-                    setNotifications(prev => 
-                      prev.map(n => ({ ...n, readStatus: true }))
-                    );
-                    setUnreadCount(0);
-                  }
-                } catch (parseError) {
-                  console.error('Error parsing update:', parseError);
-                }
-              },
-              { id: 'updates-sub' }
-            );
-          } catch (subError) {
-            console.error('Subscription error:', subError);
-          }
-  
-          fetchNotifications().catch(err => 
-            console.error('Error fetching notifications:', err)
-          );
-        },
-        onStompError: (frame) => {
-          console.error('STOMP protocol error:', frame.headers.message);
-        },
-        onWebSocketError: (event) => {
-          console.error('WebSocket error:', event);
-        },
-        onDisconnect: () => {
-          console.log('WebSocket disconnected');
-        }
-      });
-  
-      stompClient.current.activate();
-  
-      return () => {
-        if (stompClient.current?.active) {
-          // Properly unsubscribe before deactivating
-          stompClient.current.unsubscribe('notifications-sub');
-          stompClient.current.unsubscribe('updates-sub');
-          stompClient.current.deactivate().then(() => {
-            console.log('STOMP client deactivated');
-          });
-        }
-      };
-    }
-  }, [isAuthenticated, token]);
-  
-  // Add these notification functions
-  const fetchNotifications = async () => {
-    try {
-      const res = await axios.get('http://localhost:8087/api/notifications', {
-        headers: getHeader()
-      });
-      setNotifications(res.data.notifications);
-      
-      // Calculate initial unread count
-      const unread = res.data.notifications.filter(n => !n.readStatus).length;
-      setUnreadCount(unread);
-      return res.data.notifications;
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
-      throw error;
-    }
-  };
-  
   const fetchUnreadCount = async () => {
     try {
       const res = await axios.get('http://localhost:8087/api/notifications/unread-count', {
@@ -396,37 +313,193 @@ const getAllTemplates = async () => {
       throw error;
     }
   };
-  
-  const markNotificationAsRead = async (id) => {
+
+  const fetchNotifications = async () => {
     try {
-      await axios.post(`http://localhost:8087/api/notifications/${id}/read`, {}, {
-        headers: getHeader()
+      const res = await axios.get('http://localhost:8087/api/notifications', {
+        headers: getHeader(),
+        params: { _: Date.now() } // Prevent caching
       });
-      // Optimistic update
-      setNotifications(prev => 
-        prev.map(n => n.id === id ? { ...n, readStatus: true } : n)
+      
+      const sortedNotifications = res.data.notifications.sort((a, b) => 
+        new Date(b.createdAt) - new Date(a.createdAt)
       );
-      setUnreadCount(prev => Math.max(0, prev - 1));
+      
+      setNotifications(prev => {
+        // Only update if notifications actually changed
+        if (JSON.stringify(prev) !== JSON.stringify(sortedNotifications)) {
+          return sortedNotifications;
+        }
+        return prev;
+      });
+      updateUnreadCount(sortedNotifications);
+      return sortedNotifications;
     } catch (error) {
-      console.error("Error marking notification as read:", error);
+      console.error("Notification fetch failed:", error);
       throw error;
     }
   };
   
-  const markAllNotificationsAsRead = async () => {
-    try {
-      await axios.post('http://localhost:8087/api/notifications/mark-all-read', {}, {
-        headers: getHeader()
-      });
-      // Optimistic update
-      setNotifications(prev => 
-        prev.map(n => ({ ...n, readStatus: true }))
-      );
-      setUnreadCount(0);
-    } catch (error) {
-      console.error("Error marking all notifications as read:", error);
-      throw error;
+  // Calculate unread count from notifications array
+  const updateUnreadCount = (notifications) => {
+    const count = notifications.filter(n => !n.readStatus).length;
+    setUnreadCount(count);
+    return count;
+  };
+  
+  // WebSocket connection for real-time updates
+  useEffect(() => {
+    if (!isAuthenticated || !token) return;
+  
+    const socket = new SockJS('http://localhost:8087/ws');
+    stompClient.current = new Client({
+      webSocketFactory: () => socket,
+      connectHeaders: { Authorization: `Bearer ${token}` },
+      reconnectDelay: 5000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
+      debug: (str) => console.debug('[WS]', str),
+  
+      onConnect: () => {
+        console.log('WebSocket connected');
+        
+         // Use a ref to track panel state to avoid dependency on isNotificationPanelOpen
+        const panelOpenRef = { current: isNotificationPanelOpen };
+
+        // New notifications subscription
+        stompClient.current.subscribe(
+          `/user/queue/notifications`,
+          (message) => {
+            try {
+              const notification = JSON.parse(message.body);
+              setNotifications(prev => {
+                const updated = [notification, ...prev];
+                // Only increment if panel is closed
+                if (!isNotificationPanelOpen) {
+                  setUnreadCount(prev => prev + 1);
+                }
+                return updated;
+              });
+              
+              // Show alert for new notifications
+              if (!panelOpenRef.current) {
+                showNewNotificationAlert(notification);
+              }
+            } catch (error) {
+              console.error('Failed to process notification:', error);
+            }
+          },
+          { id: 'notifications-sub' }
+        );
+  
+        // Updates subscription (mark as read)
+        stompClient.current.subscribe(
+          `/user/queue/notifications-update`,
+          (message) => {
+            try {
+              const update = JSON.parse(message.body);
+              if (update.type === 'all_read') {
+                setNotifications(prev => 
+                  prev.map(n => ({ ...n, readStatus: true }))
+                );
+                setUnreadCount(0);
+              }
+            } catch (error) {
+              console.error('Failed to process update:', error);
+            }
+          },
+          { id: 'updates-sub' }
+        );
+  
+        // Initial fetch if panel is open
+        if (isNotificationPanelOpen) {
+          fetchNotifications();
+        }
+      },
+  
+      onStompError: (frame) => {
+        console.error('STOMP error:', frame.headers.message);
+      },
+      onDisconnect: () => {
+        console.log('WebSocket disconnected');
+      }
+    });
+  
+    stompClient.current.activate();
+  
+    return () => {
+      if (stompClient.current?.active) {
+        stompClient.current.deactivate();
+      }
+    };
+  }, [isAuthenticated, token, ]);
+  
+  // Toggle notification panel with auto-refresh
+  const toggleNotificationPanel = async () => {
+    const willOpen = !isNotificationPanelOpen;
+    setIsNotificationPanelOpen(willOpen);
+    console.log("toggle notifi panel");
+    
+    if (willOpen) {
+      try {
+        await fetchNotifications();
+      } catch (error) {
+        console.error("Failed to refresh notifications:", error);
+      }
     }
+  };
+  
+  // Mark single notification as read
+  const markNotificationAsRead = async (id) => {
+    const previousState = notifications;
+    
+    // Optimistic update
+    setNotifications(prev => 
+      prev.map(n => n.id === id ? { ...n, readStatus: true } : n)
+    );
+    setUnreadCount(prev => Math.max(0, prev - 1));
+  
+    try {
+      await axios.post(
+        `http://localhost:8087/api/notifications/${id}/read`, 
+        {}, 
+        { headers: getHeader() }
+      );
+    } catch (error) {
+      // Rollback on failure
+      setNotifications(previousState);
+      updateUnreadCount(previousState);
+      console.error("Failed to mark as read:", error);
+    }
+  };
+  
+  // Mark all notifications as read
+  const markAllNotificationsAsRead = async () => {
+    const previousState = notifications;
+    
+    // Optimistic update
+    setNotifications(prev => prev.map(n => ({ ...n, readStatus: true })));
+    setUnreadCount(0);
+  
+    try {
+      await axios.post(
+        'http://localhost:8087/api/notifications/mark-all-read', 
+        {}, 
+        { headers: getHeader() }
+      );
+    } catch (error) {
+      // Rollback on failure
+      setNotifications(previousState);
+      updateUnreadCount(previousState);
+      console.error("Failed to mark all as read:", error);
+    }
+  };
+  
+ 
+  const showNewNotificationAlert = (notification) => {
+   
+    console.log("New notification:", notification.message);
+   
   };
   
  
@@ -449,7 +522,7 @@ const getAllTemplates = async () => {
             fetchNotifications,
             fetchUnreadCount,
             markNotificationAsRead,
-            markAllNotificationsAsRead,
+            markAllNotificationsAsRead,isNotificationPanelOpen, setIsNotificationPanelOpen,toggleNotificationPanel
          
 
         }}>
