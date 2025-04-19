@@ -19,7 +19,7 @@ import java.util.function.Function;
 @Service
 public class JWTService {
 
-    private String secretKey="";
+    private String secretKey="atul the great";
     private static final long EXPIRATION_TIME_IN_MILLISEC = 1000L * 60L * 60L * 24L * 30L * 6L; //expires in 6 months in millisec
 
 
