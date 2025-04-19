@@ -17,17 +17,9 @@ public class NotificationWebSocketController {
         this.messagingTemplate = messagingTemplate;
     }
 
-    public void sendNotification(NotificationDTO notificationDTO, int userId) {
-        // Send to specific user
-//        messagingTemplate.convertAndSendToUser(
-//                userId.toString(),
-//                NOTIFICATION_TOPIC,
-//                notificationDTO
-//        );
-
-        // to broadcast to all users:
+    public void sendNotification(NotificationDTO notificationDTO) {
         System.out.println(notificationDTO);
-         messagingTemplate.convertAndSend(NOTIFICATION_TOPIC, notificationDTO);
+        messagingTemplate.convertAndSend(NOTIFICATION_TOPIC, notificationDTO);
     }
 
 

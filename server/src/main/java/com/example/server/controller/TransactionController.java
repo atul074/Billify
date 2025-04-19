@@ -41,23 +41,18 @@ public class TransactionController {
 
         // Send notifications to all users
         allUsers.forEach(user -> {
-            Notification notification =notificationService.createNotification(
+           notificationService.createNotification(
                     user, // Now passing the User entity
                     "New purchase made by " + currentUser.getUsername(),
                     "PURCHASE"
             );
-            // Convert to DTO and send via WebSocket
-            NotificationDTO notificationDTO = NotificationDTO.builder()
-                    .id(notification.getId())
-                    .message(notification.getMessage())
-                    .type(notification.getType())
-                    .readStatus(notification.isReadStatus())
-                    .createdAt(notification.getCreatedAt())
-                    .build();
-
-            notificationWebSocketController.sendNotification(notificationDTO, user.getUser_id());
 
         });
+        NotificationDTO notificationDTO = NotificationDTO.builder()
+                .message("New purchase made by " + currentUser.getUsername())
+                .type("PURCHASE")
+                .build();
+        notificationWebSocketController.sendNotification(notificationDTO);
 
 
         return response;
@@ -76,24 +71,18 @@ public class TransactionController {
 
         // Send notifications to all users
         allUsers.forEach(user -> {
-            Notification notification=notificationService.createNotification(
+            notificationService.createNotification(
                     user, // Now passing the User entity
                     "New sale made by " + currentUser.getUsername(),
                     "SALE"
             );
-
-            // Convert to DTO and send via WebSocket
-            NotificationDTO notificationDTO = NotificationDTO.builder()
-                    .id(notification.getId())
-                    .message(notification.getMessage())
-                    .type(notification.getType())
-                    .readStatus(notification.isReadStatus())
-                    .createdAt(notification.getCreatedAt())
-                    .build();
-            System.out.println(user);
-
-            notificationWebSocketController.sendNotification(notificationDTO, user.getUser_id());
         });
+
+        NotificationDTO notificationDTO = NotificationDTO.builder()
+                .message("New sale made by " + currentUser.getUsername())
+                .type("SALE")
+                .build();
+        notificationWebSocketController.sendNotification(notificationDTO);
 
         return response;
     }

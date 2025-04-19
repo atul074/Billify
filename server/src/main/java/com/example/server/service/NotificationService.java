@@ -1,4 +1,4 @@
-// src/main/java/com/example/server/service/NotificationService.java
+
 package com.example.server.service;
 
 import com.example.server.dto.NotificationDTO;
@@ -17,10 +17,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class NotificationService {
     private final NotificationRepo notificationRepository;
-    private final UserRepo userRepository;
-    private final WebSocketService webSocketService;
 
-    public Notification createNotification(Users user, String message, String type) {
+    public void createNotification(Users user, String message, String type) {
         Notification notification = new Notification();
         notification.setUser(user);
         notification.setMessage(message);
@@ -28,9 +26,6 @@ public class NotificationService {
 
         notificationRepository.save(notification);
 
-        // Send real-time update via WebSocket
-        webSocketService.sendNotification(user.getEmail(), notification);
-        return notification;
     }
 
     @Transactional
@@ -72,8 +67,6 @@ public class NotificationService {
                 notificationRepository.save(notification);
             });
 
-            // Optionally send WebSocket update
-            webSocketService.sendNotificationUpdate(user.getEmail(), "all_read");
         }
     }
 

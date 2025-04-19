@@ -374,15 +374,15 @@ const getAllTemplates = async () => {
               console.log("subscribe",message.body);
               
               const notification = JSON.parse(message.body);
-              setNotifications(prev => {
-                const updated = [notification, ...prev];
-                // Only increment if panel is closed
-                if (!isNotificationPanelOpen) {
-                  setUnreadCount(prev => prev + 1);
-                }
-                return updated;
-              });
-              
+              // setNotifications(prev => {
+              //   const updated = [notification, ...prev];
+              //   // Only increment if panel is closed
+              //   if (!isNotificationPanelOpen) {
+              //     setUnreadCount(prev => prev +1);
+              //   }
+              //   return updated;
+              // });
+              setUnreadCount(prev => prev +1);
               // Show alert for new notifications
               if (!panelOpenRef.current) {
                 showNewNotificationAlert(notification);
