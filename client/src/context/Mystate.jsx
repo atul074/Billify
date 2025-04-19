@@ -144,7 +144,9 @@ function Mystate({children}) {
         try {
           if (allProducts) return allProducts; // ✅ return cached if already fetched
       
-          const response = await axios.get(`http://localhost:8087/api/products/all`);
+          const response = await axios.get(`http://localhost:8087/api/products/all`,{
+            headers: getHeader()
+          });
       
           setAllProducts(response.data); // cache it
           return response.data;
