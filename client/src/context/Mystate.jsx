@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+
 import Mycontext from './Mycontext';
 import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
@@ -6,7 +6,7 @@ import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
 function Mystate({children}) {
-   // const navigate= useNavigate();
+   
     const [loading, setLoading] = useState(false);
     const [isAuthenticated, setisAuthenticated] = useState(false);
     const [userdetail, setuserdetail] = useState({});
@@ -301,53 +301,6 @@ const getAllTemplates = async () => {
 
   //notification ka code 
 
-  const fetchUnreadCount = async () => {
-    try {
-      const res = await axios.get('http://localhost:8087/api/notifications/unread-count', {
-        headers: getHeader()
-      });
-      setUnreadCount(res.data.count);
-      return res.data.count;
-    } catch (error) {
-      console.error("Error fetching unread count:", error);
-      throw error;
-    }
-  };
-
-  const fetchNotifications = async () => {
-    try {
-      const res = await axios.get('http://localhost:8087/api/notifications', {
-        headers: getHeader(),
-        params: { _: Date.now() } // Prevent caching
-      });
-      
-      const sortedNotifications = res.data.notifications.sort((a, b) => 
-        new Date(b.createdAt) - new Date(a.createdAt)
-      );
-      
-      setNotifications(prev => {
-        // Only update if notifications actually changed
-        if (JSON.stringify(prev) !== JSON.stringify(sortedNotifications)) {
-          return sortedNotifications;
-        }
-        return prev;
-      });
-      updateUnreadCount(sortedNotifications);
-      return sortedNotifications;
-    } catch (error) {
-      console.error("Notification fetch failed:", error);
-      throw error;
-    }
-  };
-  
-  // Calculate unread count from notifications array
-  const updateUnreadCount = (notifications) => {
-    const count = notifications.filter(n => !n.readStatus).length;
-    setUnreadCount(count);
-    return count;
-  };
-  
-  // WebSocket connection for real-time updates
   useEffect(() => {
     if (!isAuthenticated || !token) return;
   
@@ -362,11 +315,9 @@ const getAllTemplates = async () => {
   
       onConnect: () => {
         console.log('WebSocket connected');
-        
-         // Use a ref to track panel state to avoid dependency on isNotificationPanelOpen
+ 
         const panelOpenRef = { current: isNotificationPanelOpen };
 
-        // New notifications subscription
         stompClient.current.subscribe(
           `/topic/notifications`,
           (message) => {
@@ -374,14 +325,6 @@ const getAllTemplates = async () => {
               console.log("subscribe",message.body);
               
               const notification = JSON.parse(message.body);
-              // setNotifications(prev => {
-              //   const updated = [notification, ...prev];
-              //   // Only increment if panel is closed
-              //   if (!isNotificationPanelOpen) {
-              //     setUnreadCount(prev => prev +1);
-              //   }
-              //   return updated;
-              // });
               setUnreadCount(prev => prev +1);
               // Show alert for new notifications
               if (!panelOpenRef.current) {
@@ -394,26 +337,6 @@ const getAllTemplates = async () => {
           { id: 'notifications-sub' }
         );
   
-        // Updates subscription (mark as read)
-        stompClient.current.subscribe(
-          `/user/queue/notifications-update`,
-          (message) => {
-            try {
-              const update = JSON.parse(message.body);
-              if (update.type === 'all_read') {
-                setNotifications(prev => 
-                  prev.map(n => ({ ...n, readStatus: true }))
-                );
-                setUnreadCount(0);
-              }
-            } catch (error) {
-              console.error('Failed to process update:', error);
-            }
-          },
-          { id: 'updates-sub' }
-        );
-  
-        // Initial fetch if panel is open
         if (isNotificationPanelOpen) {
           fetchNotifications();
         }
@@ -444,6 +367,13 @@ const getAllTemplates = async () => {
     };
   }, [isAuthenticated, token, isNotificationPanelOpen ]);
   
+  // Calculate unread count from notifications array
+  const updateUnreadCount = (notifications) => {
+    const count = notifications.filter(n => !n.readStatus).length;
+    setUnreadCount(count);
+    return count;
+  };
+
   // Toggle notification panel with auto-refresh
   const toggleNotificationPanel = async () => {
     const willOpen = !isNotificationPanelOpen;
@@ -458,8 +388,49 @@ const getAllTemplates = async () => {
       }
     }
   };
+
+  //get unread count from server
+  const fetchUnreadCount = async () => {
+    try {
+      const res = await axios.get('http://localhost:8087/api/notifications/unread-count', {
+        headers: getHeader()
+      });
+      setUnreadCount(res.data.count);
+      return res.data.count;
+    } catch (error) {
+      console.error("Error fetching unread count:", error);
+      throw error;
+    }
+  };
   
-  // Mark single notification as read
+  //fetch motification
+  const fetchNotifications = async () => {
+    try {
+      const res = await axios.get('http://localhost:8087/api/notifications', {
+        headers: getHeader(),
+        params: { _: Date.now() } // Prevent caching
+      });
+      
+      const sortedNotifications = res.data.notifications.sort((a, b) => 
+        new Date(b.createdAt) - new Date(a.createdAt)
+      );
+      
+      setNotifications(prev => {
+        // Only update if notifications actually changed
+        if (JSON.stringify(prev) !== JSON.stringify(sortedNotifications)) {
+          return sortedNotifications;
+        }
+        return prev;
+      });
+      updateUnreadCount(sortedNotifications);
+      return sortedNotifications;
+    } catch (error) {
+      console.error("Notification fetch failed:", error);
+      throw error;
+    }
+  };
+
+  // mark single notification as read
   const markNotificationAsRead = async (id) => {
     const previousState = notifications;
     
@@ -483,7 +454,7 @@ const getAllTemplates = async () => {
     }
   };
   
-  // Mark all notifications as read
+  // mark all notifications as read
   const markAllNotificationsAsRead = async () => {
     const previousState = notifications;
     
@@ -520,6 +491,8 @@ const getAllTemplates = async () => {
     <Mycontext.Provider value={
         {
             loading, isAuthenticated,   userdetail, token, allTemplates,
+            notifications,unreadCount, isNotificationPanelOpen,
+
             setuserdetail, settoken,  setisAuthenticated, setLoading,
             registerUser, loginUser, logoutUser,
             addProduct, updateProduct, getAllProducts, getProductById,deleteProduct,
@@ -527,12 +500,8 @@ const getAllTemplates = async () => {
             getAllTransactions, getTransactionById,
             getAllTemplates, uploadTemplate, deleteTemplate, renameTemplate, setDefaultTemplate,  getDefaultTemplate,
 
-            notifications,
-            unreadCount,
-            fetchNotifications,
-            fetchUnreadCount,
-            markNotificationAsRead,
-            markAllNotificationsAsRead,isNotificationPanelOpen, setIsNotificationPanelOpen,toggleNotificationPanel
+            fetchNotifications, fetchUnreadCount, markNotificationAsRead, markAllNotificationsAsRead,
+            setIsNotificationPanelOpen,toggleNotificationPanel
          
 
         }}>

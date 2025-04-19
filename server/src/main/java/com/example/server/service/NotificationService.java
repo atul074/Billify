@@ -5,7 +5,6 @@ import com.example.server.dto.NotificationDTO;
 import com.example.server.model.Notification;
 import com.example.server.model.Users;
 import com.example.server.repo.NotificationRepo;
-import com.example.server.repo.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
