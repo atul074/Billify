@@ -4,6 +4,8 @@ import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+import { toast } from 'react-toastify';
+
 
 function Mystate({children}) {
    
@@ -38,14 +40,15 @@ function Mystate({children}) {
             const res=await axios.post('http://localhost:8087/register', credentials);
            // console.log(res);
             
-            alert(`Registration successful! Please login with your credentials.`);
+           
+            toast.success(`Registration successful! Please login with your credentials.`);
             setLoading(false);
            // navigate("/login");
            
       
         } catch (error) {
             
-            alert("Registration failed. Please try again.");
+            toast.error("Registration failed. Please try again.");
             throw error;
         }
       };
@@ -66,7 +69,7 @@ function Mystate({children}) {
             setLoading(false);
             return res;
         } catch (error) {
-        alert("Invalid Credentials / Account does not exist");
+        toast.error("Invalid Credentials / Account does not exist");
         throw error;
         }
       };
@@ -112,7 +115,7 @@ function Mystate({children}) {
             return response.data;
             
         } catch (error) {
-            alert(error);
+            toast.error(error);
         }
     }
 
@@ -133,7 +136,7 @@ function Mystate({children}) {
             return response.data;
             
         } catch (error) {
-            alert(error);
+            toast.error(error);
         }
     }
 
@@ -151,7 +154,7 @@ function Mystate({children}) {
           setAllProducts(response.data); // cache it
           return response.data;
         } catch (error) {
-          alert("Failed to fetch products");
+          toast.error("Failed to fetch products");
           throw error;
         }
       };
@@ -219,7 +222,7 @@ const getAllTemplates = async () => {
       setAllTemplates(res.data);
       return res.data;
     } catch (error) {
-      alert("Error fetching templates");
+      toast.error("Error fetching templates");
       throw error;
     }
   };
@@ -237,7 +240,7 @@ const getAllTemplates = async () => {
       await getAllTemplates();
       return res.data;
     } catch (error) {
-      alert("Error uploading template");
+      toast.error("Error uploading template");
       throw error;
     }
   };
@@ -251,7 +254,7 @@ const getAllTemplates = async () => {
       setAllTemplates(prev => prev?.filter(template => template.id !== id));
       return res.data;
     } catch (error) {
-      alert("Error deleting template");
+      toast.error("Error deleting template");
       throw error;
     }
   };
@@ -266,7 +269,7 @@ const getAllTemplates = async () => {
       await getAllTemplates();
       return res.data;
     } catch (error) {
-      alert("Error renaming template");
+      toast.error("Error renaming template");
       throw error;
     }
   };
@@ -281,7 +284,7 @@ const getAllTemplates = async () => {
       await getAllTemplates();
       return res.data;
     } catch (error) {
-      alert("Error setting default template");
+      toast.error("Error setting default template");
       throw error;
     }
   };
@@ -295,7 +298,7 @@ const getAllTemplates = async () => {
       
       return res;
     } catch (error) {
-      alert("Error fetching default template");
+      toast.error("Error fetching default template");
       throw error;
     }
   };
@@ -310,7 +313,6 @@ const getAllTemplates = async () => {
     const socket = new SockJS(`http://localhost:8087/ws?token=${token}`);
     stompClient.current = new Client({
       webSocketFactory: () => socket,
-     // connectHeaders: { Authorization: `Bearer ${token}` },
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
@@ -480,10 +482,20 @@ const getAllTemplates = async () => {
   };
   
  
+
   const showNewNotificationAlert = (notification) => {
-   
+    toast(notification.message , {
+      position: "top-center",
+      autoClose: 4000,
+      hideProgressBar: false,
+      closeOnClick: false,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "light",
+      });
+  
     console.log("New notification:", notification.message);
-   
   };
   
  

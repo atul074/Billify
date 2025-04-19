@@ -119,6 +119,7 @@ const TemplatePage = () => {
       const updated = await getAllTemplates();
       setTemplates(updated);
       showMessage("Default template set successfully!");
+      
     } catch (error) {
       showMessage("Error setting default template: " + error.message);
     }
