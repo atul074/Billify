@@ -306,10 +306,11 @@ const getAllTemplates = async () => {
   useEffect(() => {
     if (!isAuthenticated || !token) return;
   
-    const socket = new SockJS('http://localhost:8087/ws');
+    //const socket = new SockJS('http://localhost:8087/ws');
+    const socket = new SockJS(`http://localhost:8087/ws?token=${token}`);
     stompClient.current = new Client({
       webSocketFactory: () => socket,
-      connectHeaders: { Authorization: `Bearer ${token}` },
+     // connectHeaders: { Authorization: `Bearer ${token}` },
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
