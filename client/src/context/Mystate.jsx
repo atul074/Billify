@@ -368,9 +368,11 @@ const getAllTemplates = async () => {
 
         // New notifications subscription
         stompClient.current.subscribe(
-          `/user/queue/notifications`,
+          `/topic/notifications`,
           (message) => {
             try {
+              console.log("subscribe",message.body);
+              
               const notification = JSON.parse(message.body);
               setNotifications(prev => {
                 const updated = [notification, ...prev];
@@ -424,6 +426,14 @@ const getAllTemplates = async () => {
         console.log('WebSocket disconnected');
       }
     });
+
+    socket.onclose = () => {
+      console.log('WebSocket connection closed');
+    };
+  
+    socket.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
   
     stompClient.current.activate();
   
@@ -432,7 +442,7 @@ const getAllTemplates = async () => {
         stompClient.current.deactivate();
       }
     };
-  }, [isAuthenticated, token, ]);
+  }, [isAuthenticated, token, isNotificationPanelOpen ]);
   
   // Toggle notification panel with auto-refresh
   const toggleNotificationPanel = async () => {

@@ -20,7 +20,7 @@ public class NotificationService {
     private final UserRepo userRepository;
     private final WebSocketService webSocketService;
 
-    public void createNotification(Users user, String message, String type) {
+    public Notification createNotification(Users user, String message, String type) {
         Notification notification = new Notification();
         notification.setUser(user);
         notification.setMessage(message);
@@ -30,6 +30,7 @@ public class NotificationService {
 
         // Send real-time update via WebSocket
         webSocketService.sendNotification(user.getEmail(), notification);
+        return notification;
     }
 
     @Transactional

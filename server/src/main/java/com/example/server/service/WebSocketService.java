@@ -20,7 +20,7 @@ public class WebSocketService {
 
         messagingTemplate.convertAndSendToUser(
                 userEmail,
-                "/queue/notifications",
+                "/topic/notifications",
                 notification
         );
     }
@@ -32,7 +32,7 @@ public class WebSocketService {
 
         messagingTemplate.convertAndSendToUser(
                 userEmail,
-                "/queue/notifications-update",
+                "/topic/notifications-update",
                 payload
         );
     }

@@ -1,8 +1,10 @@
 package com.example.server.controller;
 
 
+import com.example.server.dto.NotificationDTO;
 import com.example.server.dto.Response;
 import com.example.server.dto.TransactionRequest;
+import com.example.server.model.Notification;
 import com.example.server.model.Users;
 import com.example.server.service.NotificationService;
 import com.example.server.service.TransactionService;
@@ -24,6 +26,7 @@ public class TransactionController {
     private final TransactionService transactionService;
     private final NotificationService notificationService;
     private final UserService userService;
+    private final NotificationWebSocketController notificationWebSocketController;
 
     @PostMapping("/purchase")
     public ResponseEntity<Response> purchaseInventory(@RequestBody @Valid TransactionRequest transactionRequest) {
@@ -38,11 +41,22 @@ public class TransactionController {
 
         // Send notifications to all users
         allUsers.forEach(user -> {
-            notificationService.createNotification(
+            Notification notification =notificationService.createNotification(
                     user, // Now passing the User entity
                     "New purchase made by " + currentUser.getUsername(),
                     "PURCHASE"
             );
+            // Convert to DTO and send via WebSocket
+            NotificationDTO notificationDTO = NotificationDTO.builder()
+                    .id(notification.getId())
+                    .message(notification.getMessage())
+                    .type(notification.getType())
+                    .readStatus(notification.isReadStatus())
+                    .createdAt(notification.getCreatedAt())
+                    .build();
+
+            notificationWebSocketController.sendNotification(notificationDTO, user.getUser_id());
+
         });
 
 
@@ -62,11 +76,23 @@ public class TransactionController {
 
         // Send notifications to all users
         allUsers.forEach(user -> {
-            notificationService.createNotification(
+            Notification notification=notificationService.createNotification(
                     user, // Now passing the User entity
                     "New sale made by " + currentUser.getUsername(),
                     "SALE"
             );
+
+            // Convert to DTO and send via WebSocket
+            NotificationDTO notificationDTO = NotificationDTO.builder()
+                    .id(notification.getId())
+                    .message(notification.getMessage())
+                    .type(notification.getType())
+                    .readStatus(notification.isReadStatus())
+                    .createdAt(notification.getCreatedAt())
+                    .build();
+            System.out.println(user);
+
+            notificationWebSocketController.sendNotification(notificationDTO, user.getUser_id());
         });
 
         return response;
