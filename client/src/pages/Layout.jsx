@@ -84,9 +84,17 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             <h1 className="text-2xl font-bold bg-gradient-to-r from-teal-400 to-cyan-500 bg-clip-text text-transparent">
               Billify
             </h1>
-            <p className="text-xs text-gray-400 mt-1">
-              Inventory & Billing Solution
-            </p>
+            <motion.p
+  className="text-xs text-gray-400 mt-1 overflow-hidden whitespace-nowrap"
+  initial={{ width: 0 }}
+  animate={{ width: "100%" }}
+  transition={{
+    duration: 2,
+    ease: [0.65, 0, 0.35, 1],
+  }}
+>
+  Inventory & Billing Solution
+</motion.p>
           </motion.div>
         </div>
 
@@ -163,7 +171,7 @@ const Header = ({ isSidebarOpen, toggleSidebar }) => {
         <NotificationDropdown />
           <motion.button
             onClick={logout}
-            className="flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:shadow-lg transition-all"
+            className="flex items-center px-4 py-2 rounded-full text-teal-400 hover:text-teal-300 border border-teal-500 hover:border-teal-400  text-whit shadow-md hover:shadow-lg transition-all"
             whileHover={{ 
               scale: 1.05,
               boxShadow: "0px 5px 15px rgba(239, 68, 68, 0.4)"
