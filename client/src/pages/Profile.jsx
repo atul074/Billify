@@ -5,8 +5,9 @@ import Layout from "./Layout";
 
 const Profile = () => {
   const context = useContext(Mycontext);
-  const { userdetail } = context;
-
+  const { userdetail,token } = context;
+  console.log(token);
+  
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
