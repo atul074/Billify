@@ -2,7 +2,7 @@ import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import Mycontext from "../context/Mycontext";
 import { motion } from "framer-motion";
-import background from "../assets/background.jpg"; // Make sure to import your background image
+import background from "../assets/background.jpg"; 
 
 function Login() {
   const [email, setEmail] = useState("");
