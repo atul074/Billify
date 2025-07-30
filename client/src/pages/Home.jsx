@@ -214,7 +214,6 @@ export default function HomePage() {
             </motion.button>
           </motion.nav>
           
-          <button className="md:hidden text-xl">☰</button>
         </div>
       </motion.header>
 
