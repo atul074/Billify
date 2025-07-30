@@ -47,7 +47,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   const dayName = currentDate.toLocaleDateString('en-US', { weekday: 'long' });
 
   const menuItems = [
-    { to: "/home", icon: FiHome, text: "Dashboard" },
+    { to: "/dashboard", icon: FiHome, text: "Dashboard" },
     { to: "/transaction", icon: FiShoppingCart, text: "Transactions" },
     { to: "/product", icon: FiPackage, text: "Products" },
     { to: "/purchase", icon: FiDollarSign, text: "Purchase" },

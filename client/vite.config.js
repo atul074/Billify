@@ -1,44 +1,39 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
-// // https://vite.dev/config/
-// export default defineConfig({
-//   plugins: [
-//     react(),
-//     tailwindcss(),
-//   ],
-// })
+export default defineConfig(({ mode }) => {
+  // Load environment variables based on the current mode (development, production, etc.)
+  const env = loadEnv(mode, process.cwd());
 
-
-
-export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(),
-  ],
-  define: {
-    global: 'window', // Fixes SockJS global reference
-  },
-  server: {
-    proxy: {
-      '/ws': {
-        target: 'http://localhost:8087',
-        ws: true, // Enable WebSocket proxy
-        changeOrigin: true,
-      },
-      '/api': {
-        target: 'http://localhost:8087',
-        changeOrigin: true,
-      }
-    }
-  },
-  optimizeDeps: {
-    include: ['sockjs-client'],
-    esbuildOptions: {
-      define: {
-        global: 'globalThis', // Additional global definition
+  return {
+    plugins: [
+      react(),
+      tailwindcss(),
+    ],
+    define: {
+      global: 'window', // Fixes SockJS global reference
+    },
+    server: {
+      proxy: {
+        '/ws': {
+          target: env.VITE_API_BASE_URL,
+          ws: true,
+          changeOrigin: true,
+        },
+        '/api': {
+          target: env.VITE_API_BASE_URL,
+          changeOrigin: true,
+        },
       },
     },
-  },
-})
+    optimizeDeps: {
+      include: ['sockjs-client'],
+      esbuildOptions: {
+        define: {
+          global: 'globalThis', // Additional global definition
+        },
+      },
+    },
+  };
+});

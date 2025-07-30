@@ -15,7 +15,7 @@ import Purchase from "./pages/Purchase";
 import TransactionDetail from "./pages/TransactionDetail";
 import TemplatePage from "./pages/TemplatePage";
 import Sell from "./pages/SellWithInvoicePreview";
-
+import Dashboard from "./pages/Dashboard";
 function App() {
 
   return (
@@ -34,9 +34,10 @@ function App() {
           theme="colored"
         />
         <Routes>
+          <Route path="/" element={<Home/>}/>
           <Route path="/register" element={<Register/>}/>
           <Route path="/login" element={<Login/>}/>
-          <Route path="/home" element={<CheckAuth><Home/></CheckAuth>}/>
+          <Route path="/dashboard" element={<CheckAuth><Dashboard/></CheckAuth>}/>
           <Route path="/transaction" element={<CheckAuth><Transaction/></CheckAuth>}/>
           <Route path="/transaction/:transactionId" element={<CheckAuth><TransactionDetail/></CheckAuth>}/>
           <Route path="/product" element={<CheckAuth><Product/></CheckAuth>}/>

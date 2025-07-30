@@ -37,7 +37,7 @@ function Mystate({children}) {
             setLoading(true);
            // console.log(credentials);
             
-            const res=await axios.post('http://localhost:8087/register', credentials);
+            const res=await axios.post(`${import.meta.env.VITE_API_BASE_URL}/register`, credentials);
            // console.log(res);
             
            
@@ -57,7 +57,7 @@ function Mystate({children}) {
         try {
             setLoading(true);
             
-            const res=await axios.post('http://localhost:8087/login', credentials);
+            const res=await axios.post(`${import.meta.env.VITE_API_BASE_URL}/login`, credentials);
             console.log(res);
             const { userDTO, token } = res.data;
             localStorage.setItem('authToken', token);
@@ -104,7 +104,7 @@ function Mystate({children}) {
             //     console.log(key, value);
             //   }
             
-            const response = await axios.post(`http://localhost:8087/api/products/add`, formData, {
+            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/products/add`, formData, {
                 headers: {
                     ...getHeader(),
                     "Content-Type": "multipart/form-data"
@@ -125,7 +125,7 @@ function Mystate({children}) {
                      console.log(key, value);
                   }
             
-            const response = await axios.put(`http://localhost:8087/api/products/update`, formData, {
+            const response = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/products/update`, formData, {
                 headers: {
                     ...getHeader(),
                     "Content-Type": "multipart/form-data"
@@ -147,7 +147,7 @@ function Mystate({children}) {
         try {
           if (allProducts) return allProducts; // ✅ return cached if already fetched
       
-          const response = await axios.get(`http://localhost:8087/api/products/all`,{
+          const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/products/all`,{
             headers: getHeader()
           });
       
@@ -161,14 +161,14 @@ function Mystate({children}) {
 
 
     const getProductById=async (productId) => {
-        const response = await axios.get(`http://localhost:8087/api/products/${productId}`, {
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/products/${productId}`, {
             headers: getHeader()
         });
         return response.data;
     }
 
     const deleteProduct=async (productId) => {
-        const response = await axios.delete(`http://localhost:8087/api/products/delete/${productId}`, {
+        const response = await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/products/delete/${productId}`, {
             headers: getHeader()
         });
 
@@ -179,7 +179,7 @@ function Mystate({children}) {
 
 
     const purchaseProduct=async(body) =>{
-        const response = await axios.post(`http://localhost:8087/api/transactions/purchase`, body, {
+        const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/transactions/purchase`, body, {
             headers: getHeader()
         });
         setAllProducts(null);
@@ -188,7 +188,7 @@ function Mystate({children}) {
     }
 
     const sellProduct=async(body) =>{
-        const response = await axios.post(`http://localhost:8087/api/transactions/sell`, body, {
+        const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/transactions/sell`, body, {
             headers: getHeader()
         });
         setAllProducts(null);
@@ -198,14 +198,14 @@ function Mystate({children}) {
 
 
     const getAllTransactions=async() =>{
-        const response = await axios.get(`http://localhost:8087/api/transactions/all`, {
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/transactions/all`, {
             headers: getHeader()
         })
         return response.data;
     }
 
     const getTransactionById=async(transactionId) =>{
-        const response = await axios.get(`http://localhost:8087/api/transactions/${transactionId}`, {
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/transactions/${transactionId}`, {
             headers: getHeader()
         })
         return response.data;
@@ -216,7 +216,7 @@ function Mystate({children}) {
 const getAllTemplates = async () => {
     try {
       if (allTemplates) return allTemplates;
-      const res = await axios.get("http://localhost:8087/api/templates", {
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/templates`, {
         headers: getHeader(),
       });
       setAllTemplates(res.data);
@@ -230,7 +230,7 @@ const getAllTemplates = async () => {
   // Upload new template
   const uploadTemplate = async (formData) => {
     try {
-      const res = await axios.post("http://localhost:8087/api/templates/upload", formData, {
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/templates/upload`, formData, {
         headers: {
           ...getHeader(),
           "Content-Type": "multipart/form-data"
@@ -248,7 +248,7 @@ const getAllTemplates = async () => {
   // Delete template
   const deleteTemplate = async (id) => {
     try {
-      const res = await axios.delete(`http://localhost:8087/api/templates/${id}`, {
+      const res = await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/templates/${id}`, {
         headers: getHeader()
       });
       setAllTemplates(prev => prev?.filter(template => template.id !== id));
@@ -262,7 +262,7 @@ const getAllTemplates = async () => {
   // Rename template
   const renameTemplate = async (id, newName) => {
     try {
-      const res = await axios.put(`http://localhost:8087/api/templates/rename/${id}`, { newName }, {
+      const res = await axios.put(`${import.meta.env.VITE_API_BASE_URL}/api/templates/rename/${id}`, { newName }, {
         headers: getHeader()
       });
       setAllTemplates(null);
@@ -277,7 +277,7 @@ const getAllTemplates = async () => {
   // Set default template
   const setDefaultTemplate = async (id) => {
     try {
-      const res = await axios.post(`http://localhost:8087/api/templates/default/${id}`, {}, {
+      const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/templates/default/${id}`, {}, {
         headers: getHeader()
       });
       setAllTemplates(null);
@@ -291,7 +291,7 @@ const getAllTemplates = async () => {
 
   const getDefaultTemplate = async () => {
     try {
-      const res = await axios.get(`http://localhost:8087/api/templates/default`, {
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/templates/default`, {
         headers: getHeader(),
       });
       console.log(res);
@@ -309,8 +309,8 @@ const getAllTemplates = async () => {
   useEffect(() => {
     if (!isAuthenticated || !token) return;
   
-    //const socket = new SockJS('http://localhost:8087/ws');
-    const socket = new SockJS(`http://localhost:8087/ws?token=${token}`);
+    //const socket = new SockJS('${import.meta.env.VITE_API_BASE_URL}/ws');
+    const socket = new SockJS(`${import.meta.env.VITE_API_BASE_URL}/ws?token=${token}`);
     stompClient.current = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,
@@ -397,7 +397,7 @@ const getAllTemplates = async () => {
   //get unread count from server
   const fetchUnreadCount = async () => {
     try {
-      const res = await axios.get('http://localhost:8087/api/notifications/unread-count', {
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/notifications/unread-count`, {
         headers: getHeader()
       });
       setUnreadCount(res.data.count);
@@ -411,7 +411,7 @@ const getAllTemplates = async () => {
   //fetch motification
   const fetchNotifications = async () => {
     try {
-      const res = await axios.get('http://localhost:8087/api/notifications', {
+      const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/notifications`, {
         headers: getHeader(),
         params: { _: Date.now() } // Prevent caching
       });
@@ -447,7 +447,7 @@ const getAllTemplates = async () => {
   
     try {
       await axios.post(
-        `http://localhost:8087/api/notifications/${id}/read`, 
+        `${import.meta.env.VITE_API_BASE_URL}/api/notifications/${id}/read`, 
         {}, 
         { headers: getHeader() }
       );
@@ -469,7 +469,7 @@ const getAllTemplates = async () => {
   
     try {
       await axios.post(
-        'http://localhost:8087/api/notifications/mark-all-read', 
+        `${import.meta.env.VITE_API_BASE_URL}/api/notifications/mark-all-read`, 
         {}, 
         { headers: getHeader() }
       );
