@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { FaPaintBrush,FaPhone, FaEnvelope, FaGithub, FaLinkedin, FaChartBar, FaShoppingCart, FaBox, FaFileInvoice, FaBell, FaPlay, FaStar, FaLightbulb, FaCrown, FaRocket, FaPrint, FaMapMarked, FaPaperPlane } from "react-icons/fa";
+import { FaBars, FaPaintBrush,FaPhone, FaEnvelope, FaGithub, FaLinkedin, FaChartBar, FaShoppingCart, FaBox, FaFileInvoice, FaBell, FaPlay, FaStar, FaLightbulb, FaCrown, FaRocket, FaPrint, FaMapMarked, FaPaperPlane } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { Link } from "react-scroll";
 import { useNavigate } from 'react-router-dom';
@@ -16,7 +16,9 @@ export default function HomePage() {
   const [activeDemo, setActiveDemo] = useState("analytics");
   const [hoveredStep, setHoveredStep] = useState(null);
   const [isHoveringDemo, setIsHoveringDemo] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const navItems = ['Home', 'Features', 'Demo', 'HowItWorks', 'Contact'];
   useEffect(() => {
     if (showSkeleton) {
       const timer = setTimeout(() => {
@@ -213,8 +215,56 @@ export default function HomePage() {
               Sign Up
             </motion.button>
           </motion.nav>
-          
+          <button 
+          className="md:hidden text-white text-2xl"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
+          <FaBars />
+        </button>
         </div>
+
+        {isMobileMenuOpen && (
+        <motion.nav 
+        className="flex flex-col gap-6 px-6 py-8 md:hidden bg-gray-900/90 backdrop-blur-lg rounded-t-2xl border-t border-gray-700/50 shadow-2xl"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", damping: 25, stiffness: 200 }}
+      >
+        {navItems.map((text) => (
+          <Link
+            key={text}
+            to={text.toLowerCase()}
+            className="text-white/90 hover:text-cyan-300 transition-all py-2 px-4 rounded-lg hover:bg-gray-800/60 hover:scale-[1.02] flex items-center gap-3"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <span className="w-2 h-2 bg-cyan-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></span>
+            {text}
+          </Link>
+        ))}
+        
+        <div className="border-t border-gray-700/50 pt-4 mt-2">
+          <button 
+            onClick={() => {
+              navigate('/login');
+              setIsMobileMenuOpen(false);
+            }}
+            className="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-cyan-500/10 to-blue-500/10 hover:from-cyan-500/20 hover:to-blue-500/20 border border-cyan-400/30 text-cyan-300 hover:text-white transition-all hover:shadow-cyan-500/20 hover:shadow-sm"
+          >
+            Login
+          </button>
+          
+          <button 
+            onClick={() => {
+              navigate('/register');
+              setIsMobileMenuOpen(false);
+            }}
+            className="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-400/90 hover:to-blue-500/90 text-white font-medium mt-4 transition-all hover:shadow-cyan-500/30 hover:shadow-md"
+          >
+            Sign Up
+          </button>
+        </div>
+      </motion.nav>
+      )}
       </motion.header>
 
       {/* Hero Section */}
